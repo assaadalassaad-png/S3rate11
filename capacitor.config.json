@@ -1,0 +1,6 @@
+{
+  "appId": "com.assaad.calories",
+  "appName": "Assaad Calories",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
