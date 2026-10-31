@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تطبيق السعرات - شام كاش</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+--bg-color: #f0f4f9;
+--card-bg: #ffffff;
+--primary-blue: #2563eb;
+--text-main: #1e293b;
+--text-sub: #64748b;
+--green-in: #10b981;
+--red-out: #ef4444;
+--orange-btn: #f59e0b;
+--purple-reports: #8b5cf6;
+--radius-lg: 20px;
+--radius-md: 14px;
+}
+
+* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; margin: 0; padding: 0; user-select: none; }
+body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; padding-bottom: 95px; }
+
+.app-screen { width: 100%; max-width: 430px; padding: 12px; position: relative; }
+
+.top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.icon-btn { width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; color: var(--text-main); font-size: 16px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+
+.toggle-pill { display: flex; background: #e2e8f0; border-radius: 25px; padding: 3px; width: 180px; }
+.toggle-opt { flex: 1; text-align: center; padding: 6px 0; font-size: 14px; font-weight: 700; border-radius: 20px; cursor: pointer; color: var(--text-sub); border: none; background: transparent; }
+.toggle-opt.active { background: var(--primary-blue); color: white; box-shadow: 0 2px 6px rgba(37,99,235,0.2); }
+
+.page-view { display: none; }
+.page-view.active { display: block; animation: fadeIn 0.2s ease-in-out; }
+
+.card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 12px; }
+.card-title { font-size: 13px; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+.card-value { font-size: 32px; font-weight: 800; color: var(--text-main); }
+
+.action-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.action-btn-card { flex: 1; background: var(--card-bg); border-radius: var(--radius-md); padding: 12px 6px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+.action-btn-card.in { color: var(--green-in); }
+.action-btn-card.out { color: var(--red-out); }
+.action-btn-card.surplus { color: var(--orange-btn); background: #fffbeb; border: 1px solid #fde68a; }
+
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; text-align: center; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; text-align: center; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; text-align: center; }
+
+.box-item { background: var(--card-bg); border-radius: var(--radius-md); padding: 10px 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+.box-title { font-size: 11px; color: var(--text-sub); font-weight: 600; margin-bottom: 4px; }
+.box-val { font-size: 14px; font-weight: 800; }
+
+.cat-box { background: var(--card-bg); border-radius: var(--radius-md); padding: 12px 6px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); cursor: pointer; }
+.cat-circle { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; margin-bottom: 6px; }
+.cat-title { font-size: 11px; font-weight: 700; color: var(--text-main); }
+
+.input-box { margin-bottom: 10px; }
+.input-box label { display: block; font-size: 11px; color: var(--text-sub); margin-bottom: 4px; font-weight: 600; }
+.input-box input, .input-box select { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; font-size: 13px; outline: none; }
+.btn-main { width: 100%; padding: 11px; background: var(--primary-blue); color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 4px; }
+
+.btn-action-sm { border: none; padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.btn-warning-custom { background: var(--orange-btn); }
+.btn-danger-custom { background: var(--red-out); }
+
+.btn-add-inline { background: #eff6ff; color: var(--primary-blue); border: 1px dashed var(--primary-blue); width: 100%; padding: 8px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-add-inline.red { background: #fef2f2; color: var(--red-out); border-color: var(--red-out); }
+
+.btn-edit { background: #fef3c7; color: #b45309; }
+.btn-delete { background: #fee2e2; color: #b91c1c; }
+
+.food-list { max-height: 150px; overflow-y: auto; background: #f8fafc; border-radius: 8px; padding: 6px; border: 1px solid #e2e8f0; margin-bottom: 8px; }
+.food-item { padding: 6px; border-bottom: 1px solid #e2e8f0; font-size: 12px; display: flex; justify-content: space-between; cursor: pointer; }
+.food-item:hover { background: #e2e8f0; }
+
+.modal-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 15px; }
+.modal-overlay.active { display: flex; }
+.modal-content { background: white; border-radius: var(--radius-lg); width: 100%; max-width: 410px; padding: 18px; position: relative; max-height: 90vh; overflow-y: auto; animation: fadeIn 0.2s; }
+
+.tx-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.btn-new-tx { background: #eff6ff; color: var(--primary-blue); border: 1px solid #bfdbfe; padding: 8px 14px; border-radius: 20px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.tx-card { background: white; border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; }
+.tx-info h4 { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
+.tx-info p { font-size: 11px; color: var(--text-sub); }
+.tx-amount-side { text-align: left; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.tx-amount { font-size: 15px; font-weight: 800; }
+.tx-actions-row { display: flex; gap: 4px; }
+
+
+.weight-progress-wrap{margin-top:16px;text-align:right}
+.weight-progress-head{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:800;color:var(--text-sub);margin-bottom:8px}
+.weight-progress-track{height:14px;background:#e2e8f0;border-radius:20px;overflow:hidden;direction:ltr}
+.weight-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#22c55e,#0ea5e9);border-radius:20px;transition:width .35s ease}
+.weight-progress-caption{text-align:center;font-size:13px;font-weight:800;color:var(--primary-blue);margin-top:8px}
+.weight-fold{padding:0;overflow:hidden}
+.weight-fold summary{list-style:none;cursor:pointer;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:800;color:var(--text-main)}
+.weight-fold summary::-webkit-details-marker{display:none}
+.weight-fold summary:after{content:'＋';font-size:18px;color:var(--primary-blue)}
+.weight-fold[open] summary:after{content:'−'}
+.weight-fold-body{padding:0 16px 16px}
+
+.weight-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; text-align: center; }
+.weight-table th { background: #f8fafc; color: var(--text-sub); padding: 8px; border-bottom: 1px solid #e2e8f0; }
+.weight-table td { padding: 8px; border-bottom: 1px solid #e2e8f0; }
+
+.chart-container { margin-top: 12px; }
+.chart-bar-wrap { margin-bottom: 8px; }
+.chart-label { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; margin-bottom: 3px; color: var(--text-sub); }
+.chart-track { background: #e2e8f0; border-radius: 10px; height: 10px; width: 100%; overflow: hidden; }
+.chart-fill { height: 100%; border-radius: 10px; transition: width 0.4s ease; }
+
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; height: 75px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #e2e8f0; max-width: 430px; margin: 0 auto; padding: 0 6px; z-index: 100; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -4px 15px rgba(0,0,0,0.04); }
+.nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 4px; border-radius: 12px; color: white; font-size: 10px; font-weight: 700; gap: 3px; cursor: pointer; border: none; width: 52px; height: 50px; }
+.nav-btn.debts { background: var(--orange-btn); }
+.nav-btn.exp { background: var(--red-out); }
+.nav-btn.inc { background: var(--green-in); }
+.nav-btn.txs { background: #0891b2; }
+.nav-btn.rep { background: var(--purple-reports); }
+.nav-btn.hom { background: var(--primary-blue); }
+.nav-btn i { font-size: 14px; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* إضافات Assaad: ملخصات العمليات والماء والتقارير */
+.metric-pair{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.metric-mini{background:#f8fafc;border-radius:9px;padding:7px 4px}
+.metric-mini small{display:block;color:var(--text-sub);font-size:10px}
+.metric-mini strong{display:block;font-size:14px;margin-top:2px}
+.water-card{background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border:1px solid #bae6fd}
+.water-big{font-size:27px;font-weight:900;color:#0369a1}
+.water-progress{height:11px;background:#dbeafe;border-radius:20px;overflow:hidden;margin:10px 0}
+.water-progress>div{height:100%;background:linear-gradient(90deg,#38bdf8,#0369a1);border-radius:20px;width:0}
+.water-actions{display:flex;gap:8px;align-items:center}
+.water-actions button{flex:1;border:0;border-radius:10px;padding:10px;background:#0284c7;color:white;font-weight:800}
+.report-canvas{width:100%;height:210px;display:block;background:#fff;border-radius:12px}
+.settings-row{display:flex;gap:8px;margin-top:8px}
+.settings-row button{flex:1}
+
+</style>
+</head>
+<body>
+
+<div class="app-screen">
+
+<div class="top-header">
+<button class="icon-btn" onclick="openSettings()" aria-label="الإعدادات"><i class="fa-solid fa-gear"></i></button>
+<div class="toggle-pill">
+<button class="toggle-opt active" id="btn-switch-cal" onclick="switchMainPage('cal')">السعرات</button>
+<button class="toggle-opt" id="btn-switch-wt" onclick="switchMainPage('wt')">الوزن</button>
+</div>
+<button class="icon-btn" style="color:var(--orange-btn);" onclick="switchMainPage('txs')"><i class="fa-solid fa-list-check"></i></button>
+</div>
+
+<!-- PAGE 1: CALORIES -->
+<div class="page-view active" id="page-calories">
+
+<div class="card" style="text-align: center;">
+<div class="card-title" style="justify-content: center;"><span>رصيد السعرات المستهدف للتصفير</span> <i class="fa-regular fa-eye"></i></div>
+<div class="card-value"><span id="main-cal-val">77,500</span> <span style="font-size:16px;">سعرة</span></div>
+<div style="font-size: 11px; color: var(--text-sub); margin-top: 4px;">المدخول يرفع الرصيد • المصروف والاحتياج يخفضانه</div>
+</div>
+
+<!-- Surplus Card -->
+<div class="card" style="background:#fefce8; border:1px solid #fde047; text-align:center;">
+<div class="card-title" style="justify-content: center; color:#854d0e;"><i class="fa-solid fa-bolt"></i> بطاقة الفائض (أقل من الاحتياج 1500)</div>
+<div class="card-value" style="color:#a16207; font-size:26px;" id="surplus-val">1,500 <span style="font-size:14px;">سعرة</span></div>
+<div style="font-size: 10px; color: #a16207; margin-top:2px;">= 1500 ناقص المدخول الحالي (مؤشر مستقل لا يؤثر بالحسابات)</div>
+</div>
+
+<div class="action-row">
+<button class="action-btn-card in" onclick="openActionForm('income')"><i class="fa-solid fa-caret-up"></i> مدخول (أكل)</button>
+<button class="action-btn-card out" onclick="openActionForm('expense')"><i class="fa-solid fa-caret-down"></i> مصروف (رياضة)</button>
+<button class="action-btn-card surplus" onclick="openActionForm('surplus_details')"><i class="fa-solid fa-bolt"></i> فائض</button>
+</div>
+
+<!-- Macros Total Row -->
+<div class="grid-3" style="margin-bottom:4px;">
+<div class="box-item"><div class="box-title">بروتين</div><div class="box-val" style="color:var(--primary-blue);" id="m-p">0.0 غ</div></div>
+<div class="box-item"><div class="box-title">كربوهيدرات</div><div class="box-val" style="color:var(--orange-btn);" id="m-c">0.0 غ</div></div>
+<div class="box-item"><div class="box-title">دهون</div><div class="box-val" style="color:var(--red-out);" id="m-f">0.0 غ</div></div>
+</div>
+
+<!-- Macros Remaining Row -->
+<div class="grid-3">
+<div class="box-item" style="background:#eff6ff; border:1px solid #bfdbfe;">
+<div class="box-title" style="color:#1d4ed8;">متبقي البروتين</div>
+<div class="box-val" style="color:#1e40af;" id="m-p-rem">166.0 غ</div>
+</div>
+<div class="box-item" style="background:#fffbeb; border:1px solid #fde68a;">
+<div class="box-title" style="color:#b45309;">متبقي الكربو</div>
+<div class="box-val" style="color:#92400e;" id="m-c-rem">200.0 غ</div>
+</div>
+<div class="box-item" style="background:#fef2f2; border:1px solid #fecaca;">
+<div class="box-title" style="color:#b91c1c;">متبقي الدهون</div>
+<div class="box-val" style="color:#991b1b;" id="m-f-rem">60.0 غ</div>
+</div>
+</div>
+
+<div class="grid-2">
+<div class="box-item">
+<div class="box-title" style="color:var(--green-in);"><i class="fa-solid fa-circle-arrow-up"></i> إجمالي المدخول (أكل)</div>
+<div class="box-val" style="color:var(--green-in);" id="total-inc">0</div>
+</div>
+<div class="box-item">
+<div class="box-title" style="color:var(--red-out);"><i class="fa-solid fa-circle-arrow-down"></i> إجمالي المصروف (رياضة)</div>
+<div class="box-val" style="color:var(--red-out);" id="total-exp">0</div>
+</div>
+</div>
+
+
+<div class="card water-card" id="water-card">
+  <div class="card-title"><span>💧 متابعة شرب الماء</span><span id="water-percent">0%</span></div>
+  <div class="water-big"><span id="water-total">0</span> <span style="font-size:14px">مل</span></div>
+  <div class="water-progress"><div id="water-fill"></div></div>
+  <div style="display:flex;justify-content:space-between;font-size:11px;color:#075985;margin-bottom:9px">
+    <span>الهدف: <b id="water-goal-label">2500</b> مل</span><span>المتبقي: <b id="water-remaining">2500</b> مل</span>
+  </div>
+  <div class="water-actions">
+    <button onclick="addWater()">+ 250 مل</button>
+    <button onclick="setWaterGoal()" style="background:#0f766e">تحديد الهدف</button>
+  </div>
+</div>
+
+
+<div class="grid-3" id="operation-metrics">
+  <div class="box-item"><div class="box-title" style="color:var(--green-in)">المدخول</div>
+    <div class="metric-pair"><div class="metric-mini"><small>القيمة</small><strong id="inc-value">0</strong></div><div class="metric-mini"><small>عدد العمليات</small><strong id="inc-count">0</strong></div></div>
+  </div>
+  <div class="box-item"><div class="box-title" style="color:var(--red-out)">المصروف</div>
+    <div class="metric-pair"><div class="metric-mini"><small>القيمة</small><strong id="exp-value">0</strong></div><div class="metric-mini"><small>عدد العمليات</small><strong id="exp-count">0</strong></div></div>
+  </div>
+  <div class="box-item"><div class="box-title" style="color:var(--orange-btn)">الفائض</div>
+    <div class="metric-pair"><div class="metric-mini"><small>القيمة</small><strong id="sur-value">0</strong></div><div class="metric-mini"><small>عدد العمليات</small><strong id="sur-count">0</strong></div></div>
+  </div>
+</div>
+
+<div class="grid-4">
+<div class="cat-box" onclick="openActionForm('add_food')">
+<div class="cat-circle" style="background:var(--primary-blue);"><i class="fa-solid fa-plus-circle"></i></div>
+<div class="cat-title">إضافة طعام</div>
+</div>
+<div class="cat-box" onclick="openActionForm('balance')">
+<div class="cat-circle" style="background:var(--orange-btn);"><i class="fa-solid fa-pen-to-square"></i></div>
+<div class="cat-title">تعديل رصيد</div>
+</div>
+<div class="cat-box" onclick="openActionForm('income')">
+<div class="cat-circle" style="background:var(--green-in);"><i class="fa-solid fa-utensils"></i></div>
+<div class="cat-title">إضافة أكل</div>
+</div>
+<div class="cat-box" onclick="openActionForm('expense')">
+<div class="cat-circle" style="background:var(--red-out);"><i class="fa-solid fa-person-biking"></i></div>
+<div class="cat-title">إضافة رياضة</div>
+</div>
+</div>
+
+</div>
+
+<!-- PAGE 2: TRANSACTIONS -->
+<div class="page-view" id="page-transactions">
+<div class="tx-header-row">
+<div style="font-weight: 800; font-size: 15px; display:flex; align-items:center; gap:6px;">
+<i class="fa-solid fa-receipt" style="color:var(--primary-blue);"></i> سجل العمليات بالتاريخ والساعة
+</div>
+<button class="btn-new-tx" onclick="openActionForm('income')"><i class="fa-solid fa-plus"></i> جديد</button>
+</div>
+
+<div id="transactions-list-container">
+<div style="text-align: center; color: var(--text-sub); padding: 30px; font-size: 13px; background:white; border-radius:14px;">لا توجد عمليات مسجلة حتى الآن</div>
+</div>
+</div>
+
+<!-- PAGE 3: WEIGHT -->
+<div class="page-view" id="page-weight">
+<div class="card" style="text-align: center;">
+<div class="card-title" style="justify-content: center;">وزنك الحالي</div>
+<div class="card-value"><span id="wt-current">—</span> <span style="font-size:16px;">كغ</span></div>
+<div style="margin-top:10px;">
+<input type="number" id="wt-input-new" placeholder="أدخل وزنك الحالي أو اليومي" style="padding:8px; width:65%; border-radius:8px; border:1px solid #cbd5e1;">
+<button onclick="updateWeightData()" style="padding:8px 12px; background:var(--primary-blue); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">تحديث الوزن</button>
+</div>
+<div class="weight-progress-wrap">
+<div class="weight-progress-head"><span id="wt-progress-start">بداية الوزن: —</span><span id="wt-progress-target">الوزن الهدف: —</span></div>
+<div class="weight-progress-track"><div class="weight-progress-fill" id="wt-progress-fill"></div></div>
+<div class="weight-progress-caption" id="wt-progress-caption">أدخل وزنك والهدف لمتابعة التقدم</div>
+</div>
+</div>
+
+<details class="card weight-fold" id="weight-log-card">
+<summary>سجل الوزن اليومي والمقارنات</summary>
+<div class="weight-fold-body">
+<div style="max-height: 260px; overflow-y: auto;">
+<table class="weight-table">
+<thead><tr><th>التاريخ</th><th>الوزن</th><th>الفرق</th><th>المجموع</th><th>تحكم</th></tr></thead>
+<tbody id="weight-log-tbody"><tr><td colspan="5" style="color:var(--text-sub);">لا يوجد سجلات وزن بعد</td></tr></tbody>
+</table>
+</div>
+</div>
+</details>
+
+<details class="card weight-fold" id="weight-settings-card">
+<summary>إعدادات الوزن والأهداف</summary>
+<div class="weight-fold-body">
+<div class="grid-2">
+<div class="input-box"><label>الوزن الهدف (كغ)</label><input type="number" id="wt-target" value="90" oninput="calcWeightFormulas()"></div>
+<div class="input-box"><label>العمر</label><input type="number" id="wt-age" value="25" oninput="calcWeightFormulas()"></div>
+</div>
+<div class="grid-2">
+<div class="input-box"><label>الجنس لحساب الأيض</label><select id="wt-sex" onchange="calcWeightFormulas()"><option value="male">ذكر</option><option value="female">أنثى</option></select></div>
+<div class="input-box"><label>أهداف العناصر الغذائية (غرام/يوم)</label><button type="button" class="btn-add-inline" onclick="suggestMacros()">اقتراح حسب وزني</button></div>
+</div>
+<div class="grid-3">
+<div class="input-box"><label>هدف البروتين</label><input type="number" id="wt-target-p" min="0" step="1" placeholder="يدوي" oninput="calcWeightFormulas();updateCalUI();"></div>
+<div class="input-box"><label>هدف الكربوهيدرات</label><input type="number" id="wt-target-c" min="0" step="1" placeholder="يدوي" oninput="calcWeightFormulas();updateCalUI();"></div>
+<div class="input-box"><label>هدف الدهون</label><input type="number" id="wt-target-f" min="0" step="1" placeholder="يدوي" oninput="calcWeightFormulas();updateCalUI();"></div>
+</div>
+<div class="grid-2">
+<div class="input-box"><label>الطول (سم)</label><input type="number" id="wt-height" value="170" oninput="calcWeightFormulas()"></div>
+<div class="input-box"><label>النشاط</label><select id="wt-activity" onchange="calcWeightFormulas()"><option value="1.2">خامل</option><option value="1.375">خفيف</option><option value="1.55" selected>متوسط</option><option value="1.725">عالي</option></select></div>
+</div>
+</div>
+</details>
+
+<div class="grid-2">
+<div class="box-item"><div class="box-title">مؤشر كتلة الجسم (BMI)</div><div class="box-val" id="res-bmi" style="color:var(--primary-blue);">--</div></div>
+<div class="box-item"><div class="box-title">الأيض الأساسي (BMR)</div><div class="box-val" id="res-bmr" style="color:var(--green-in);">-- سعرة</div></div>
+</div>
+<div class="grid-2">
+<div class="box-item"><div class="box-title">الاحتياج اليومي (TDEE)</div><div class="box-val" id="res-tdee" style="color:var(--orange-btn);">-- سعرة</div></div>
+<div class="box-item"><div class="box-title">سعرات الوزن الكلية</div><div class="box-val" id="res-tot-cal" style="color:var(--red-out);">-- سعرة</div></div>
+</div>
+<div class="card" style="text-align:center; background:#eff6ff; border:1px solid #bfdbfe;">
+<div class="box-title" style="font-size:12px; color:#1e40af;">الأسابيع المتبقية (بمعدل 1.5 كغ أسبوعياً)</div>
+<div style="font-size:22px; font-weight:800; color:#2563eb; margin-top:4px;" id="res-weeks">-- أسبوع</div>
+</div>
+</div>
+
+<!-- PAGE 4: REPORTS -->
+<div class="page-view" id="page-reports">
+<div class="card">
+<div class="card-title" style="justify-content: space-between; align-items: center; margin-bottom:10px;">
+<span><i class="fa-solid fa-chart-pie" style="color:var(--purple-reports);"></i> التقارير والتحليلات الشاملة</span>
+<select id="report-filter" onchange="onReportFilterChange()" style="padding:4px 8px; border-radius:8px; border:1px solid #cbd5e1; font-size:11px; outline:none;">
+<option value="all">كل الأوقات</option>
+<option value="day">تحديد يوم محدد</option>
+<option value="month">تحديد شهر محدد</option>
+<option value="year">تحديد سنة محددة</option>
+</select>
+</div>
+
+<div id="time-picker-container" style="margin-bottom: 10px; display: none;"></div>
+
+<div class="grid-2" style="margin-top:10px;">
+<div class="box-item">
+<div class="box-title">إجمالي المدخول (أكل)</div>
+<div class="box-val" style="color:var(--green-in);" id="rep-inc">0 سعرة</div>
+</div>
+<div class="box-item">
+<div class="box-title">إجمالي المصروف (رياضة)</div>
+<div class="box-val" style="color:var(--red-out);" id="rep-exp">0 سعرة</div>
+</div>
+</div>
+
+<div class="grid-2">
+<div class="box-item"><div class="box-title">إجمالي الفائض</div><div class="box-val" style="color:var(--orange-btn)" id="rep-sur">0 سعرة</div></div>
+<div class="box-item"><div class="box-title">الرصيد حسب المعادلة</div><div class="box-val" id="rep-balance">0 سعرة</div></div>
+</div>
+<div class="grid-2">
+<div class="box-item" style="background:#f8fafc; padding:12px;">
+<div class="box-title">صافي السعرات (مدخول - مصروف)</div>
+<div class="box-val" style="font-size:16px; color:var(--primary-blue); margin-top:4px;" id="rep-net">0 سعرة</div>
+</div>
+<div class="box-item" style="background:#fffbeb; padding:12px;">
+<div class="box-title">سجل الوزن (الفترة المحددة)</div>
+<div class="box-val" style="font-size:16px; color:var(--orange-btn); margin-top:4px;" id="rep-wt-diff">0 كغ</div>
+</div>
+</div>
+
+<div class="card-title" style="margin:12px 0 6px">المخطط الزمني للمدخول والمصروف والفائض</div>
+<canvas id="period-chart" class="report-canvas" width="700" height="330"></canvas>
+<div class="chart-container">
+<div class="card-title" style="margin-bottom:8px;">مقارنة الأداء الرسومية (الشارتات)</div>
+
+<div class="chart-bar-wrap">
+<div class="chart-label"><span>المدخول (أكل)</span><span id="chart-inc-lbl">0%</span></div>
+<div class="chart-track"><div class="chart-fill" id="chart-inc-fill" style="width:0%; background:var(--green-in);"></div></div>
+</div>
+
+<div class="chart-bar-wrap">
+<div class="chart-label"><span>المصروف (رياضة)</span><span id="chart-exp-lbl">0%</span></div>
+<div class="chart-track"><div class="chart-fill" id="chart-exp-fill" style="width:0%; background:var(--red-out);"></div></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+<button class="nav-btn debts" onclick="openActionForm('balance')"><i class="fa-solid fa-wallet"></i>رصيد</button>
+<button class="nav-btn inc" onclick="openActionForm('income')"><i class="fa-solid fa-plus"></i>مدخول</button>
+<button class="nav-btn exp" onclick="openActionForm('expense')"><i class="fa-solid fa-minus"></i>مصروف</button>
+<button class="nav-btn txs" onclick="switchMainPage('txs')"><i class="fa-solid fa-list-check"></i>العمليات</button>
+<button class="nav-btn rep" onclick="switchMainPage('rep')"><i class="fa-solid fa-chart-pie"></i>التقارير</button>
+<button class="nav-btn hom" onclick="switchMainPage('cal')"><i class="fa-solid fa-house"></i>الرئيسية</button>
+</div>
+
+</div>
+
+<!-- Modal Popup Layer -->
+<div class="modal-overlay" id="form-modal">
+<div class="modal-content" id="modal-body"></div>
+</div>
+
+
+<script>
+const STORE_KEY = 'calorie_app_v2';
+let foodsDB = [
+{name:"خيار",cal:15,p:0.7,c:3.6,f:0.1},{name:"بندورة",cal:18,p:0.9,c:3.9,f:0.2},
+{name:"خس",cal:15,p:1.4,c:2.9,f:0.2},{name:"ملفوف",cal:25,p:1.3,c:5.8,f:0.1},
+{name:"زهرة",cal:25,p:1.9,c:5,f:0.3},{name:"بروكلي",cal:34,p:2.8,c:6.6,f:0.4},
+{name:"بطاطا نيئة",cal:77,p:2,c:17.5,f:0.1},{name:"بطاطا مسلوقة",cal:87,p:1.9,c:20.1,f:0.1},
+{name:"باذنجان",cal:25,p:1,c:6,f:0.2},{name:"كوسا",cal:17,p:1.2,c:3.1,f:0.3},
+{name:"فليفلة",cal:31,p:1,c:6,f:0.3},{name:"بصل",cal:40,p:1.1,c:9.3,f:0.1},
+{name:"ثوم",cal:149,p:6.4,c:33,f:0.5},{name:"جزر",cal:41,p:0.9,c:9.6,f:0.2},
+{name:"تفاح",cal:52,p:0.3,c:14,f:0.2},{name:"موز",cal:89,p:1.1,c:23,f:0.3},
+{name:"برتقال",cal:47,p:0.9,c:11.8,f:0.1},{name:"عنب",cal:69,p:0.7,c:18,f:0.2},
+{name:"بطيخ",cal:30,p:0.6,c:7.6,f:0.2},{name:"خوخ",cal:39,p:0.9,c:9.5,f:0.3},
+{name:"رز أبيض مطبوخ",cal:130,p:2.7,c:28.2,f:0.3},{name:"برغل مطبوخ",cal:83,p:3.1,c:18.6,f:0.2},
+{name:"فريكة مطبوخة",cal:120,p:4,c:24,f:1},{name:"خبز عربي",cal:275,p:9,c:55,f:1.2},
+{name:"خبز أبيض",cal:265,p:9,c:49,f:3.2},{name:"شوفان جاف",cal:389,p:16.9,c:66.3,f:6.9},
+{name:"عدس مطبوخ",cal:116,p:9,c:20.1,f:0.4},{name:"حمص مسلوق",cal:164,p:8.9,c:27.4,f:2.6},
+{name:"فول مطبوخ",cal:110,p:7.6,c:19.7,f:0.4},{name:"فاصولياء مطبوخة",cal:127,p:8.7,c:23.7,f:0.5},
+{name:"صدر دجاج مطبوخ",cal:165,p:31,c:0,f:3.6},{name:"فخذ دجاج مطبوخ",cal:209,p:26,c:0,f:11},
+{name:"لحم بقري قليل الدهن مطبوخ",cal:217,p:26,c:0,f:12},{name:"تونة بالماء مصفاة",cal:116,p:26,f:1,c:0},
+{name:"لبنة",cal:190,p:10,c:6,f:15},{name:"لبن كامل الدسم",cal:61,p:3.5,c:4.7,f:3.3},
+{name:"جبنة بيضاء",cal:264,p:14,c:4,f:21},{name:"زيت زيتون",cal:884,p:0,c:0,f:100},
+{name:"جوز",cal:654,p:15.2,c:13.7,f:65.2},{name:"لوز",cal:579,p:21.2,c:21.6,f:49.9},
+{name:"فلافل مقلية",cal:333,p:13,c:31,f:18},{name:"حمص بطحينة",cal:166,p:8,c:14,f:9.6},
+{name:"بابا غنوج",cal:120,p:2,c:8,f:9},{name:"متبل",cal:150,p:3,c:8,f:12},
+{name:"تبولة",cal:120,p:3,c:13,f:6},{name:"فتوش",cal:90,p:2,c:10,f:5},
+{name:"مجدرة",cal:145,p:6,c:24,f:3},{name:"كبة مقلية",cal:260,p:12,c:22,f:14},
+{name:"شاورما دجاج",cal:215,p:22,c:4,f:12},{name:"شاورما لحم",cal:250,p:20,c:5,f:17},
+{name:"ورق عنب",cal:150,p:3,c:24,f:5},{name:"محشي كوسا",cal:130,p:5,c:12,f:6},
+{name:"مكدوس",cal:280,p:5,c:10,f:25},{name:"شنكليش",cal:275,p:20,c:6,f:20},
+{name:"دبس رمان",cal:260,p:0,c:65,f:0},{name:"زعتر",cal:420,p:10,c:35,f:28},
+{name:"سمسم",cal:573,p:17,c:23,f:50},{name:"طحينة",cal:595,p:17,c:21,f:53},
+{name:"فريكة نيئة",cal:340,p:12,c:70,f:2},{name:"برغل ناعم جاف",cal:342,p:12,c:76,f:1.3},
+{name:"كوسا بلبن",cal:110,p:5,c:8,f:6},{name:"يبرق",cal:165,p:5,c:20,f:7},
+{name:"شيش برك",cal:220,p:10,c:18,f:12},{name:"مقلوبة",cal:180,p:6,c:20,f:8},
+{name:"رز بحليب",cal:130,p:3,c:22,f:3},{name:"مهلبية",cal:140,p:3,c:24,f:3},
+{name:"بقلاوة",cal:430,p:7,c:49,f:24},{name:"معمول",cal:420,p:7,c:58,f:18},
+{name:"تمر",cal:282,p:2.5,c:75,f:0.4},{name:"تين طازج",cal:74,p:0.8,c:19,f:0.3},
+{name:"كرز",cal:63,p:1.1,c:16,f:0.2},{name:"إجاص",cal:57,p:0.4,c:15,f:0.1},
+{name:"خبز شوفان",cal:352,p:12,c:70,f:3.2},{name:"لحم غنم مطبوخ",cal:260,p:25,c:0,f:18},
+{name:"تفاح أخضر",cal:52,p:0.3,c:14,f:0.2},{name:"منسف لحم",cal:385,p:21,c:28,f:19},
+{name:"لبن عيران",cal:40,p:2.2,c:3.5,f:1.8},{name:"لحم بعجين",cal:260,p:15,c:30,f:14},
+{name:"كباب مشوي",cal:250,p:20,c:2,f:18},{name:"منقوشة زعتر",cal:375,p:11,c:48,f:15},
+{name:"كبة مشوية",cal:180,p:10,c:18,f:7},{name:"يالنجي",cal:150,p:2,c:24,f:6},
+{name:"بيض كامل",cal:143,p:12.6,c:0.7,f:9.5},{name:"بياض البيض",cal:52,p:10.9,c:0.7,f:0.2},
+{name:"حليب قليل الدسم",cal:46,p:3.4,c:5,f:1},{name:"بطاطا مقلية",cal:312,p:3.4,c:41,f:15}
+];
+let activitiesDB = [{name:"مشي",rate:10},{name:"دراجة هوائية",rate:8},{name:"جري",rate:14},{name:"سباحة",rate:10},{name:"تمارين حديد",rate:6},{name:"نط الحبل",rate:15}];
+
+let currentCal=0,totalInc=0,totalExp=0,curP=0,curC=0,curF=0;
+let targetP=0,targetC=0,targetF=0,currentWeight=0;
+let selFoodIdx=0,selActIdx=0,transactionsLog=[],weightLog=[];
+let settings={target:90,age:39,height:170,activity:1.55,sex:'male'};
+let reportFilter='all';
+
+function dateInfo(){const d=new Date();return {dateStr:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),timeStr:d.toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'}),year:String(d.getFullYear()),month:String(d.getMonth()+1).padStart(2,'0')};}
+function getDateTimeData(){return dateInfo();}
+function num(id){return Number(document.getElementById(id)?.value)||0;}
+function saveData(){try{localStorage.setItem(STORE_KEY,JSON.stringify({currentCal,totalInc,totalExp,curP,curC,curF,targetP,targetC,targetF,currentWeight,transactionsLog,weightLog,foodsDB,activitiesDB,settings}));}catch(e){console.warn('تعذر حفظ البيانات',e);}}
+function loadData(){try{const x=JSON.parse(localStorage.getItem(STORE_KEY)||'null');if(!x)return;for(const k of ['currentCal','totalInc','totalExp','curP','curC','curF','targetP','targetC','targetF','currentWeight','transactionsLog','weightLog','foodsDB','activitiesDB','settings']){if(x[k]!==undefined){switch(k){case 'currentCal':currentCal=x[k];break;case 'totalInc':totalInc=x[k];break;case 'totalExp':totalExp=x[k];break;case 'curP':curP=x[k];break;case 'curC':curC=x[k];break;case 'curF':curF=x[k];break;case 'targetP':targetP=x[k];break;case 'targetC':targetC=x[k];break;case 'targetF':targetF=x[k];break;case 'currentWeight':currentWeight=x[k];break;case 'transactionsLog':transactionsLog=x[k];break;case 'weightLog':weightLog=x[k];break;case 'foodsDB':foodsDB=x[k];break;case 'activitiesDB':activitiesDB=x[k];break;case 'settings':settings=x[k];break;}}}}catch(e){console.warn(e);}}
+function switchMainPage(page){const map={cal:'calories',wt:'weight',txs:'transactions',rep:'reports'};document.querySelectorAll('.page-view').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+map[page]).classList.add('active');document.getElementById('btn-switch-cal').classList.toggle('active',page==='cal');document.getElementById('btn-switch-wt').classList.toggle('active',page==='wt');if(page==='wt')calcWeightFormulas();if(page==='rep')updateReportsUI();}
+function openActionForm(type){
+const modal=document.getElementById('form-modal'),body=document.getElementById('modal-body');modal.classList.add('active');
+if(type==='income'){body.innerHTML=`<div class="card-title"><span>إضافة مدخول (أكل)</span><i class="fa-solid fa-xmark" onclick="closeForm()"></i></div><button class="btn-add-inline" onclick="openActionForm('add_food')">+ إضافة صنف جديد</button><div class="input-box"><input id="srch-food" placeholder="بحث عن الطعام" oninput="filterFoodList()"></div><div class="food-list" id="f-list"></div><div class="input-box"><label>الكمية بالغرام</label><input type="number" id="eat-g" placeholder="100" min="1"></div><div class="grid-2"><button class="btn-action-sm btn-warning-custom" onclick="editSelectedFood()">تعديل الصنف</button><button class="btn-action-sm btn-danger-custom" onclick="deleteSelectedFood()">حذف الصنف</button></div><button class="btn-main" onclick="submitFoodIncome()">حفظ المدخول</button>`;renderFoodList(foodsDB);}
+else if(type==='expense'){body.innerHTML=`<div class="card-title"><span>تسجيل مصروف (رياضة)</span><i class="fa-solid fa-xmark" onclick="closeForm()"></i></div><button class="btn-add-inline red" onclick="openActionForm('add_activity')">+ إضافة نشاط جديد</button><div class="input-box"><input id="srch-act" placeholder="بحث عن نشاط" oninput="filterActivityList()"></div><div class="food-list" id="act-list"></div><div class="grid-2" style="margin:10px 0"><button class="btn-action-sm btn-warning-custom" onclick="editSelectedActivity()">تعديل النشاط المحدد</button><button class="btn-action-sm btn-danger-custom" onclick="deleteSelectedActivity()">حذف النشاط المحدد</button></div><div class="input-box"><label>المدة بالدقائق</label><input type="number" id="exp-mins" min="1" placeholder="30"></div><button class="btn-main" style="background:var(--red-out)" onclick="submitActivityExpense()">حفظ المصروف</button>`;renderActivityList(activitiesDB);}
+else if(type==='add_food'){body.innerHTML=`<div class="card-title">إضافة طعام جديد <i onclick="closeForm()" class="fa-solid fa-xmark"></i></div><div class="input-box"><label>اسم الطعام</label><input id="new-f-name"></div><div class="input-box"><label>السعرات لكل 100 غ</label><input type="number" id="new-f-cal" min="0"></div><div class="grid-3"><div class="input-box"><label>بروتين غ</label><input type="number" id="new-f-p" min="0" step=".1"></div><div class="input-box"><label>كربوهيدرات غ</label><input type="number" id="new-f-c" min="0" step=".1"></div><div class="input-box"><label>دهون غ</label><input type="number" id="new-f-f" min="0" step=".1"></div></div><button class="btn-main" onclick="submitNewFoodItem()">حفظ الصنف</button>`;}
+else if(type==='add_activity'){body.innerHTML=`<div class="card-title">إضافة نشاط <i onclick="closeForm()" class="fa-solid fa-xmark"></i></div><div class="input-box"><label>اسم النشاط</label><input id="new-act-name"></div><div class="input-box"><label>السعرات المحروقة بالدقيقة</label><input type="number" id="new-act-rate" min="0" step=".1"></div><button class="btn-main" onclick="submitNewActivityItem()">حفظ النشاط</button>`;}
+else if(type==='balance'){body.innerHTML=`<div class="card-title">تعديل الرصيد الحالي <i onclick="closeForm()" class="fa-solid fa-xmark"></i></div><p style="font-size:12px;color:#64748b;margin-bottom:10px">أدخل الرصيد الذي تريد ظهوره الآن. سيُعاد احتساب الرصيد الأساسي تلقائياً مع الحفاظ على معادلة الرصيد.</p><div class="input-box"><label>الرصيد الحالي المطلوب</label><input type="number" id="man-bal" value="${currentCal}"></div><button class="btn-main" onclick="submitManualBalance()">حفظ الرصيد</button>`;}
+else if(type==='surplus_details'){body.innerHTML=`<div class="card-title">ملخص اليوم <i onclick="closeForm()" class="fa-solid fa-xmark"></i></div><p>إجمالي المدخول: ${totalInc.toFixed(0)} سعرة</p><p>إجمالي المصروف: ${totalExp.toFixed(0)} سعرة</p><p>الفائض من 1500: ${Math.max(0,1500-totalInc).toFixed(0)} سعرة</p>`;}
+}
+function closeForm(){document.getElementById('form-modal').classList.remove('active');}
+function renderFoodList(list){const el=document.getElementById('f-list');if(!el)return;el.innerHTML='';list.forEach(item=>{const idx=foodsDB.indexOf(item),div=document.createElement('div');div.className='food-item';div.style.background=idx===selFoodIdx?'#dbeafe':'';div.innerHTML=`<span>${item.name}</span><span>${item.cal} سعرة/100غ</span>`;div.onclick=()=>{selFoodIdx=idx;renderFoodList(list);};el.appendChild(div);});}
+function filterFoodList(){const q=document.getElementById('srch-food').value.trim().toLowerCase();renderFoodList(foodsDB.filter(x=>x.name.toLowerCase().includes(q)));}
+function renderActivityList(list){const el=document.getElementById('act-list');if(!el)return;el.innerHTML='';list.forEach(item=>{const idx=activitiesDB.indexOf(item),div=document.createElement('div');div.className='food-item';div.style.background=idx===selActIdx?'#fee2e2':'';div.innerHTML=`<span>${item.name}</span><span>${item.rate} سعرة/دقيقة</span>`;div.onclick=()=>{selActIdx=idx;renderActivityList(list);};el.appendChild(div);});}
+function filterActivityList(){const q=document.getElementById('srch-act').value.trim().toLowerCase();renderActivityList(activitiesDB.filter(x=>x.name.toLowerCase().includes(q)));}
+function submitNewFoodItem(){const name=document.getElementById('new-f-name').value.trim(),cal=num('new-f-cal'),p=num('new-f-p'),c=num('new-f-c'),f=num('new-f-f');if(!name||cal<0||!Number.isFinite(cal))return alert('أدخل اسم الطعام والسعرات بشكل صحيح');if(p+c+f>100.5)return alert('مجموع البروتين والكربوهيدرات والدهون لا يمكن أن يتجاوز 100 غ لكل 100 غ');foodsDB.unshift({name,cal,p,c,f});selFoodIdx=0;saveData();alert('تمت إضافة الصنف');openActionForm('income');}
+function submitNewActivityItem(){const name=document.getElementById('new-act-name').value.trim(),rate=num('new-act-rate');if(!name||rate<=0)return alert('أدخل اسم النشاط ومعدل الحرق');activitiesDB.unshift({name,rate});selActIdx=0;saveData();openActionForm('expense');}
+function editSelectedActivity(){const x=activitiesDB[selActIdx];if(!x)return alert('اختر نشاطاً أولاً');const name=prompt('اسم النشاط',x.name);if(name===null)return;const rateText=prompt('السعرات المحروقة بالدقيقة',x.rate);if(rateText===null)return;const rate=Number(rateText);if(!name.trim()||!Number.isFinite(rate)||rate<=0)return alert('أدخل اسم النشاط ومعدل حرق أكبر من صفر');x.name=name.trim();x.rate=rate;saveData();const search=document.getElementById('srch-act');const q=search?search.value.trim().toLowerCase():'';renderActivityList(q?activitiesDB.filter(a=>a.name.toLowerCase().includes(q)):activitiesDB);alert('تم تعديل النشاط وحفظه.');}
+function deleteSelectedActivity(){const x=activitiesDB[selActIdx];if(!x)return alert('اختر نشاطاً أولاً');if(!confirm('هل تريد حذف النشاط «'+x.name+'»؟'))return;activitiesDB.splice(selActIdx,1);selActIdx=Math.min(selActIdx,Math.max(0,activitiesDB.length-1));saveData();const search=document.getElementById('srch-act');const q=search?search.value.trim().toLowerCase():'';renderActivityList(q?activitiesDB.filter(a=>a.name.toLowerCase().includes(q)):activitiesDB);alert('تم حذف النشاط.');}
+function editSelectedFood(){const x=foodsDB[selFoodIdx];if(!x)return alert('اختر صنفاً أولاً');const name=prompt('اسم الطعام',x.name);if(name===null)return;const cal=prompt('السعرات لكل 100غ',x.cal),p=prompt('البروتين لكل 100غ',x.p),c=prompt('الكربوهيدرات لكل 100غ',x.c),f=prompt('الدهون لكل 100غ',x.f);if(cal===null||p===null||c===null||f===null)return;const vals=[cal,p,c,f].map(Number);if(!name.trim()||vals.some(v=>!Number.isFinite(v)||v<0)||vals[1]+vals[2]+vals[3]>100.5)return alert('القيم المدخلة غير صحيحة');Object.assign(x,{name:name.trim(),cal:vals[0],p:vals[1],c:vals[2],f:vals[3]});saveData();renderFoodList(foodsDB);}
+function deleteSelectedFood(){if(!foodsDB[selFoodIdx])return alert('اختر صنفاً أولاً');if(confirm('حذف '+foodsDB[selFoodIdx].name+'؟')){foodsDB.splice(selFoodIdx,1);selFoodIdx=0;saveData();renderFoodList(foodsDB);}}
+function addTx(type,name,val,macros={}){const dt=dateInfo();transactionsLog.unshift({id:Date.now(),type,name,val,...macros,date:dt.dateStr,time:dt.timeStr,year:dt.year,month:dt.month});}
+function submitFoodIncome(){const g=num('eat-g'),item=foodsDB[selFoodIdx];if(g<=0||!item)return alert('اختر الطعام وأدخل الكمية بالغرام');const factor=g/100,cal=factor*item.cal,p=factor*item.p,c=factor*item.c,f=factor*item.f;currentCal+=cal;totalInc+=cal;curP+=p;curC+=c;curF+=f;addTx('in',`${item.name} (${g}غ)`,cal,{p,c,f});saveData();updateCalUI();renderTransactions();closeForm();}
+function submitActivityExpense(){const mins=num('exp-mins'),item=activitiesDB[selActIdx];if(mins<=0||!item)return alert('اختر النشاط وأدخل المدة');const burned=mins*item.rate;currentCal-=burned;totalExp+=burned;addTx('out',`${item.name} (${mins} دقيقة)`,burned);saveData();updateCalUI();renderTransactions();closeForm();}
+function submitManualBalance(){const input=document.getElementById('man-bal');const v=Number(input.value);if(input.value.trim()===''||!Number.isFinite(v))return alert('أدخل رقماً صحيحاً');/* الرصيد الحالي مشتق من المعادلة؛ نعدّل الرصيد الأساسي ليصبح الناتج هو الرقم المطلوب */extraState.baseBalance=v-(Number(totalInc)||0)+(Number(totalExp)||0)+(Number(extraState.totalSurplus)||0);recalcBalance();saveExtra();saveData();updateCalUI();closeForm();alert('تم تحديث الرصيد الحالي والرصيد الأساسي وفق المعادلة.');}
+function editTransaction(id){const tx=transactionsLog.find(x=>x.id===id);if(!tx)return;const v=Number(prompt('القيمة الجديدة بالسعرات',tx.val));if(!Number.isFinite(v)||v<0)return;const delta=v-tx.val;if(tx.type==='in'){currentCal+=delta;totalInc+=delta;}else{currentCal-=delta;totalExp+=delta;}tx.val=v;saveData();updateCalUI();renderTransactions();}
+function deleteTransaction(id){const i=transactionsLog.findIndex(x=>x.id===id);if(i<0)return;const tx=transactionsLog[i];if(!confirm('حذف العملية؟'))return;if(tx.type==='in'){currentCal-=tx.val;totalInc-=tx.val;curP-=tx.p||0;curC-=tx.c||0;curF-=tx.f||0;}else{currentCal+=tx.val;totalExp-=tx.val;}transactionsLog.splice(i,1);saveData();updateCalUI();renderTransactions();}
+function updateCalUI(){document.getElementById('main-cal-val').textContent=currentCal.toLocaleString('en-US',{maximumFractionDigits:0});document.getElementById('total-inc').textContent=Math.round(totalInc).toLocaleString();document.getElementById('total-exp').textContent=Math.round(totalExp).toLocaleString();document.getElementById('m-p').textContent=curP.toFixed(1)+' غ';document.getElementById('m-c').textContent=curC.toFixed(1)+' غ';document.getElementById('m-f').textContent=curF.toFixed(1)+' غ';document.getElementById('m-p-rem').textContent=(targetP-curP).toFixed(1)+' غ';document.getElementById('m-c-rem').textContent=(targetC-curC).toFixed(1)+' غ';document.getElementById('m-f-rem').textContent=(targetF-curF).toFixed(1)+' غ';const s=document.getElementById('surplus-val');if(s)s.innerHTML=Math.max(0,1500-totalInc).toFixed(0)+' <span style="font-size:14px">سعرة</span>';updateReportsUI();}
+function renderTransactions(){const el=document.getElementById('transactions-list-container');if(!el)return;if(!transactionsLog.length){el.innerHTML='<div style="text-align:center;padding:30px;background:white;border-radius:14px">لا توجد عمليات مسجلة</div>';return;}el.innerHTML='';transactionsLog.forEach(tx=>{const div=document.createElement('div');div.className='tx-card';div.innerHTML=`<div class="tx-info"><h4>${tx.name}</h4><p>${tx.date||''} ${tx.time||''}</p></div><div class="tx-amount-side"><div class="tx-amount" style="color:${tx.type==='in'?'var(--green-in)':'var(--red-out)'}">${tx.type==='in'?'+':'-'}${tx.val.toFixed(0)} سعرة</div><div class="tx-actions-row"><button class="btn-action-sm btn-edit" onclick="editTransaction(${tx.id})">تعديل</button><button class="btn-action-sm btn-delete" onclick="deleteTransaction(${tx.id})">حذف</button></div></div>`;el.appendChild(div);});}
+function updateWeightData(){const w=num('wt-input-new');if(w<=0||w>500)return alert('أدخل وزناً صحيحاً بالكيلوغرام');const last=weightLog.length?weightLog[weightLog.length-1].weight:null,dt=dateInfo();weightLog.push({id:Date.now(),date:dt.dateStr,weight:w,diff:last===null?0:w-last,totalDiff:last===null?0:w-weightLog[0].weight,year:dt.year,month:dt.month});currentWeight=w;document.getElementById('wt-input-new').value='';saveData();renderWeightLogTable();calcWeightFormulas();updateWeightProgress();}
+function renderWeightLogTable(){const tb=document.getElementById('weight-log-tbody');if(!tb)return;tb.innerHTML='';if(!weightLog.length){tb.innerHTML='<tr><td colspan="5">لم تدخل وزنك بعد</td></tr>';return;}weightLog.slice().reverse().forEach(x=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${x.date}</td><td>${x.weight.toFixed(1)}</td><td>${x.diff>0?'+':''}${x.diff.toFixed(1)}</td><td>${x.totalDiff>0?'+':''}${x.totalDiff.toFixed(1)}</td><td><button class="btn-action-sm btn-edit" onclick="editWeightLog(${x.id})">تعديل</button> <button class="btn-action-sm btn-delete" onclick="deleteWeightLog(${x.id})">حذف</button></td>`;tb.appendChild(tr);});}
+function recalculateWeightLog(){weightLog.sort((a,b)=>a.date.localeCompare(b.date));weightLog.forEach((x,i)=>{x.diff=i?x.weight-weightLog[i-1].weight:0;x.totalDiff=x.weight-weightLog[0].weight;});currentWeight=weightLog.length?weightLog[weightLog.length-1].weight:0;}
+function editWeightLog(id){const x=weightLog.find(v=>v.id===id);if(!x)return;const w=Number(prompt('الوزن الجديد',x.weight));if(!Number.isFinite(w)||w<=0||w>500)return;x.weight=w;recalculateWeightLog();saveData();renderWeightLogTable();calcWeightFormulas();}
+function deleteWeightLog(id){if(!confirm('حذف سجل الوزن؟'))return;weightLog=weightLog.filter(x=>x.id!==id);recalculateWeightLog();saveData();renderWeightLogTable();calcWeightFormulas();}
+function updateWeightProgress(){const target=Number(document.getElementById('wt-target')?.value)||settings.target||0;const first=weightLog.length?weightLog[0].weight:currentWeight;const current=currentWeight||first;const startEl=document.getElementById('wt-progress-start'),targetEl=document.getElementById('wt-progress-target'),fill=document.getElementById('wt-progress-fill'),caption=document.getElementById('wt-progress-caption');if(!startEl||!targetEl||!fill||!caption)return;startEl.textContent='بداية الوزن: '+(first>0?first.toFixed(1)+' كغ':'—');targetEl.textContent='الوزن الهدف: '+(target>0?target.toFixed(1)+' كغ':'—');if(first<=0||target<=0||first===target){fill.style.width='0%';caption.textContent='أدخل وزنك والهدف لمتابعة التقدم';return;}const raw=(first>target)?((first-current)/(first-target))*100:((current-first)/(target-first))*100;const progress=Math.max(0,Math.min(100,raw));const remaining=100-progress;fill.style.width=progress.toFixed(1)+'%';caption.textContent='أنجزت '+progress.toFixed(1)+'٪ — متبقي '+remaining.toFixed(1)+'٪ للوصول للهدف';}
+function calcWeightFormulas(){const el=id=>document.getElementById(id);updateWeightProgress();if(el('wt-current'))el('wt-current').textContent=currentWeight>0?currentWeight.toFixed(1):'—';const target=num('wt-target')||settings.target,age=num('wt-age')||settings.age,height=num('wt-height')||settings.height,act=num('wt-activity')||settings.activity;const sex=el('wt-sex')?.value||settings.sex;const p=el('wt-target-p'),c=el('wt-target-c'),f=el('wt-target-f');if(p&&p.value!=='')targetP=Number(p.value);if(c&&c.value!=='')targetC=Number(c.value);if(f&&f.value!=='')targetF=Number(f.value);if(currentWeight<=0||height<=0){['res-bmi','res-bmr','res-tdee','res-tot-cal','res-weeks'].forEach(id=>{if(el(id))el(id).textContent='أدخل الوزن والطول';});return;}const hm=height/100,bmi=currentWeight/(hm*hm),bmr=10*currentWeight+6.25*height-5*age+(sex==='female'?-161:5),tdee=bmr*act,diff=Math.abs(currentWeight-target);el('res-bmi').textContent=bmi.toFixed(1);el('res-bmr').textContent=Math.round(bmr)+' سعرة';el('res-tdee').textContent=Math.round(tdee)+' سعرة';el('res-tot-cal').textContent=Math.round(diff*7700).toLocaleString()+' سعرة';el('res-weeks').textContent=(diff/1.5).toFixed(1)+' أسبوع';settings={target,age,height,activity:act,sex};saveData();}
+function suggestMacros(){if(currentWeight<=0)return alert('أدخل وزنك أولاً');const p=Math.round(currentWeight*1.6),c=Math.round(currentWeight*2),f=Math.round(currentWeight*.7);document.getElementById('wt-target-p').value=p;document.getElementById('wt-target-c').value=c;document.getElementById('wt-target-f').value=f;targetP=p;targetC=c;targetF=f;saveData();updateCalUI();}
+function onReportFilterChange(){const f=document.getElementById('report-filter').value,box=document.getElementById('time-picker-container'),d=dateInfo();box.style.display=f==='all'?'none':'block';box.innerHTML=f==='day'?`<input type="date" id="sel-date" value="${d.dateStr}" onchange="updateReportsUI()">`:f==='month'?`<input type="month" id="sel-month" value="${d.year}-${d.month}" onchange="updateReportsUI()">`:f==='year'?`<input type="number" id="sel-year" value="${d.year}" onchange="updateReportsUI()">`:'';updateReportsUI();}
+function updateReportsUI(){const filter=document.getElementById('report-filter')?.value||'all';let tx=transactionsLog.filter(x=>{if(filter==='day')return x.date===document.getElementById('sel-date')?.value;if(filter==='month')return (x.date||'').startsWith(document.getElementById('sel-month')?.value||'');if(filter==='year')return (x.date||'').startsWith(String(document.getElementById('sel-year')?.value||''));return true;});const inc=tx.filter(x=>x.type==='in').reduce((a,x)=>a+x.val,0),exp=tx.filter(x=>x.type==='out').reduce((a,x)=>a+x.val,0);const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};set('rep-inc',Math.round(inc)+' سعرة');set('rep-exp',Math.round(exp)+' سعرة');set('rep-net',Math.round(inc-exp)+' سعرة');let weights=weightLog;if(filter==='day')weights=weights.filter(x=>x.date===document.getElementById('sel-date')?.value);if(filter==='month')weights=weights.filter(x=>(x.date||'').startsWith(document.getElementById('sel-month')?.value||''));if(filter==='year')weights=weights.filter(x=>(x.date||'').startsWith(String(document.getElementById('sel-year')?.value||'')));set('rep-wt-diff',weights.length>1?(weights[weights.length-1].weight-weights[0].weight).toFixed(1)+' كغ':'0 كغ');const max=Math.max(inc,exp,1);[['chart-inc',inc],['chart-exp',exp]].forEach(([id,v])=>{const fill=document.getElementById(id+'-fill'),lbl=document.getElementById(id+'-lbl'),pct=Math.round(v/max*100);if(fill)fill.style.width=pct+'%';if(lbl)lbl.textContent=pct+'%';});}
+function initSettings(){const put=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};put('wt-target',settings.target);put('wt-age',settings.age);put('wt-height',settings.height);put('wt-activity',settings.activity);put('wt-sex',settings.sex);put('wt-target-p',targetP||'');put('wt-target-c',targetC||'');put('wt-target-f',targetF||'');}
+window.addEventListener('load',()=>{loadData();initSettings();renderWeightLogTable();renderTransactions();updateCalUI();calcWeightFormulas();});
+</script>
+
+
+<script>
+/* Assaad PM enhancements: settings, backup, water, surplus and reports */
+const EXTRA_KEY='calorie_app_extra_v1';
+let extraState={baseBalance:77500,totalSurplus:0,waterGoal:2500,waterDate:'',waterMl:0,passwordHash:''};
+function loadExtra(){
+ try{const x=JSON.parse(localStorage.getItem(EXTRA_KEY)||'null');if(x)extraState={...extraState,...x};}catch(e){}
+ const today=dateInfo().dateStr;
+ if(extraState.waterDate!==today){extraState.waterDate=today;extraState.waterMl=0;saveExtra();}
+}
+function saveExtra(){localStorage.setItem(EXTRA_KEY,JSON.stringify(extraState));}
+function recalcBalance(){
+ currentCal=(Number(extraState.baseBalance)||0)+(Number(totalInc)||0)-(Number(totalExp)||0)-(Number(extraState.totalSurplus)||0);
+}
+function updateExtraMetrics(){
+ const tx=transactionsLog||[];
+ const ins=tx.filter(x=>x.type==='in'),outs=tx.filter(x=>x.type==='out'),surs=tx.filter(x=>x.type==='surplus');
+ const put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+ put('inc-value',Math.round(totalInc).toLocaleString('en-US'));
+ put('inc-count',ins.length);
+ put('exp-value',Math.round(totalExp).toLocaleString('en-US'));
+ put('exp-count',outs.length);
+ put('sur-value',Math.round(extraState.totalSurplus).toLocaleString('en-US'));
+ put('sur-count',surs.length);
+}
+function updateWaterUI(){
+ const pct=extraState.waterGoal>0?Math.min(100,extraState.waterMl/extraState.waterGoal*100):0;
+ const put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+ put('water-total',extraState.waterMl.toLocaleString('en-US'));
+ put('water-goal-label',extraState.waterGoal.toLocaleString('en-US'));
+ put('water-remaining',Math.max(0,extraState.waterGoal-extraState.waterMl).toLocaleString('en-US'));
+ put('water-percent',Math.round(pct)+'%');
+ const f=document.getElementById('water-fill');if(f)f.style.width=pct+'%';
+}
+function addWater(){loadExtra();extraState.waterMl+=250;saveExtra();updateWaterUI();}
+function setWaterGoal(){const v=Number(prompt('حدد هدف الماء اليومي بالملليلتر',extraState.waterGoal));if(!Number.isFinite(v)||v<250||v>10000)return alert('أدخل هدفاً بين 250 و10000 مل');extraState.waterGoal=Math.round(v);saveExtra();updateWaterUI();}
+async function hashPassword(s){
+ const data=new TextEncoder().encode(s);
+ if(window.crypto&&crypto.subtle){const h=await crypto.subtle.digest('SHA-256',data);return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('');}
+ return btoa(unescape(encodeURIComponent(s)));
+}
+async function openSettings(){
+ const choice=prompt('الإعدادات:\n1 تعيين/تغيير كلمة المرور\n2 إلغاء كلمة المرور\n3 تصدير نسخة احتياطية\n4 استيراد نسخة احتياطية\n5 تحديد الرصيد الأساسي\n\nاكتب رقم الخيار');
+ if(choice==='1'){
+   const p=prompt('أدخل كلمة مرور من 4 أحرف/أرقام على الأقل');if(p===null)return;
+   if(p.length<4)return alert('كلمة المرور قصيرة');
+   extraState.passwordHash=await hashPassword(p);saveExtra();alert('تم تعيين كلمة المرور. لن تُضمّن في النسخة الاحتياطية.');
+ }else if(choice==='2'){
+   if(extraState.passwordHash){const p=prompt('أدخل كلمة المرور الحالية');if(p===null)return;if(await hashPassword(p)!==extraState.passwordHash)return alert('كلمة المرور غير صحيحة');}
+   extraState.passwordHash='';saveExtra();alert('تم إلغاء كلمة المرور المحلية.');
+ }else if(choice==='3'){exportBackup();}
+ else if(choice==='4'){importBackup();}
+ else if(choice==='5'){
+   const v=Number(prompt('أدخل الرصيد الأساسي',extraState.baseBalance));if(!Number.isFinite(v))return;
+   extraState.baseBalance=v;recalcBalance();saveExtra();saveData();updateCalUI();alert('تم تحديث الرصيد الأساسي.');
+ }
+}
+async function checkLocalPassword(){
+ if(!extraState.passwordHash)return true;
+ const p=prompt('أدخل كلمة المرور لفتح التطبيق');if(p===null)return false;
+ if(await hashPassword(p)===extraState.passwordHash)return true;
+ alert('كلمة المرور غير صحيحة');return false;
+}
+function exportBackup(){
+ const payload={format:'AssaadCaloriesBackup',version:2,exportedAt:new Date().toISOString(),
+  app:JSON.parse(localStorage.getItem(STORE_KEY)||'{}'),
+  extra:{...extraState,passwordHash:undefined}};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='assaad-calories-backup-'+dateInfo().dateStr+'.json';a.click();URL.revokeObjectURL(a.href);
+}
+function importBackup(){
+ const input=document.createElement('input');input.type='file';input.accept='.json,application/json';
+ input.onchange=()=>{const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{
+  try{const d=JSON.parse(r.result);if(d.format!=='AssaadCaloriesBackup'||!d.app)throw new Error('ملف غير صالح');
+   localStorage.setItem(STORE_KEY,JSON.stringify(d.app));
+   const imported={...(d.extra||{})};delete imported.passwordHash;
+   extraState={...extraState,...imported,passwordHash:extraState.passwordHash||''};
+   saveExtra();location.reload();
+  }catch(e){alert('تعذر استيراد الملف: '+e.message);}
+ };r.readAsText(file);};input.click();
+}
+function openSurplusForm(){
+ const body=document.getElementById('modal-body');
+ document.getElementById('form-modal').classList.add('active');
+ body.innerHTML=`<div class="card-title"><span>تسجيل فائض</span><i class="fa-solid fa-xmark" onclick="closeForm()"></i></div>
+ <p style="font-size:12px;color:#64748b;margin-bottom:10px">سيُخصم هذا المبلغ من الرصيد وفق معادلتك.</p>
+ <div class="input-box"><label>قيمة الفائض بالسعرات</label><input type="number" id="surplus-amount" min="0" placeholder="مثلاً 300"></div>
+ <div class="input-box"><label>ملاحظة (اختياري)</label><input id="surplus-note" placeholder="وصف الفائض"></div>
+ <button class="btn-main" style="background:var(--orange-btn)" onclick="submitSurplus()">حفظ الفائض</button>`;
+}
+function submitSurplus(){
+ const v=Number(document.getElementById('surplus-amount').value);if(!Number.isFinite(v)||v<=0)return alert('أدخل قيمة صحيحة');
+ const note=document.getElementById('surplus-note').value.trim()||'فائض';
+ extraState.totalSurplus+=v;
+ const dt=dateInfo();transactionsLog.unshift({id:Date.now(),type:'surplus',name:note,val:v,date:dt.dateStr,time:dt.timeStr,year:dt.year,month:dt.month});
+ recalcBalance();saveExtra();saveData();updateCalUI();renderTransactions();closeForm();
+}
+const oldOpenActionForm=openActionForm;
+openActionForm=function(type){if(type==='surplus_details'){openSurplusForm();return;}oldOpenActionForm(type);};
+const oldEditTransaction=editTransaction;
+editTransaction=function(id){
+ const tx=transactionsLog.find(x=>x.id===id);if(!tx)return;
+ if(tx.type==='surplus'){
+  const v=Number(prompt('قيمة الفائض الجديدة',tx.val));if(!Number.isFinite(v)||v<0)return;
+  extraState.totalSurplus+=v-tx.val;tx.val=v;recalcBalance();saveExtra();saveData();updateCalUI();renderTransactions();return;
+ }
+ oldEditTransaction(id);recalcBalance();saveData();updateCalUI();
+};
+const oldDeleteTransaction=deleteTransaction;
+deleteTransaction=function(id){
+ const tx=transactionsLog.find(x=>x.id===id);if(!tx)return;
+ if(tx.type==='surplus'){
+  if(!confirm('حذف عملية الفائض؟'))return;
+  extraState.totalSurplus=Math.max(0,extraState.totalSurplus-tx.val);
+  transactionsLog=transactionsLog.filter(x=>x.id!==id);recalcBalance();saveExtra();saveData();updateCalUI();renderTransactions();return;
+ }
+ oldDeleteTransaction(id);recalcBalance();saveData();updateCalUI();
+};
+const oldUpdateCalUI=updateCalUI;
+updateCalUI=function(){
+ recalcBalance();oldUpdateCalUI();updateExtraMetrics();updateWaterUI();
+ const el=document.getElementById('main-cal-val');if(el)el.textContent=Math.round(currentCal).toLocaleString('en-US');
+};
+const oldRenderTransactions=renderTransactions;
+renderTransactions=function(){
+ oldRenderTransactions();
+ document.querySelectorAll('.tx-card').forEach((card)=>{const title=card.querySelector('.tx-info h4')?.textContent||'';const tx=transactionsLog.find(t=>t.name===title);
+  if(tx&&tx.type==='surplus'){const amt=card.querySelector('.tx-amount');if(amt){amt.textContent='−'+Math.round(tx.val)+' سعرة';amt.style.color='var(--orange-btn)';}}
+ });
+};
+const oldUpdateReportsUI=updateReportsUI;
+updateReportsUI=function(){
+ oldUpdateReportsUI();
+ const filter=document.getElementById('report-filter')?.value||'all';
+ const selectedDate=()=>filter==='day'?document.getElementById('sel-date')?.value:filter==='month'?document.getElementById('sel-month')?.value:filter==='year'?String(document.getElementById('sel-year')?.value||''):'';
+ const key=selectedDate();
+ const tx=transactionsLog.filter(x=>!key||(x.date||'').startsWith(key));
+ const inc=tx.filter(x=>x.type==='in').reduce((a,x)=>a+x.val,0);
+ const exp=tx.filter(x=>x.type==='out').reduce((a,x)=>a+x.val,0);
+ const sur=tx.filter(x=>x.type==='surplus').reduce((a,x)=>a+x.val,0);
+ const put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+ put('rep-sur',Math.round(sur).toLocaleString('en-US')+' سعرة');
+ put('rep-balance',Math.round((Number(extraState.baseBalance)||0)+inc-exp-sur).toLocaleString('en-US')+' سعرة');
+ drawPeriodChart(filter,key);
+};
+function drawPeriodChart(filter,key){
+ const c=document.getElementById('period-chart');if(!c)return;
+ const ctx=c.getContext('2d'),W=c.width,H=c.height;ctx.clearRect(0,0,W,H);
+ const groups={};
+ (transactionsLog||[]).forEach(t=>{
+  if(key&&!(t.date||'').startsWith(key))return;
+  let k=t.date||'غير محدد';
+  if(filter==='month'||filter==='all')k=k.slice(0,7);
+  if(filter==='year')k=k.slice(0,7);
+  groups[k]??={in:0,out:0,surplus:0};
+  if(t.type==='in')groups[k].in+=t.val;else if(t.type==='out')groups[k].out+=t.val;else if(t.type==='surplus')groups[k].surplus+=t.val;
+ });
+ let rows=Object.entries(groups).sort((a,b)=>a[0].localeCompare(b[0])).slice(-10);
+ if(filter==='day'&&rows.length===0)rows=[[key||dateInfo().dateStr,{in:0,out:0,surplus:0}]];
+ const max=Math.max(1,...rows.flatMap(x=>[x[1].in,x[1].out,x[1].surplus]));
+ const left=48,bottom=H-42,top=20,plotH=bottom-top,groupW=(W-left-18)/Math.max(rows.length,1),barW=Math.min(22,groupW/4);
+ ctx.font='16px Arial';ctx.fillStyle='#64748b';ctx.textAlign='right';
+ for(let i=0;i<=4;i++){let y=bottom-plotH*i/4;ctx.strokeStyle='#e2e8f0';ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(W-10,y);ctx.stroke();ctx.fillText(Math.round(max*i/4).toLocaleString('en-US'),left-7,y+5);}
+ rows.forEach(([label,v],i)=>{
+  const center=left+groupW*i+groupW/2;
+  [['in','#10b981'],['out','#ef4444'],['surplus','#f59e0b']].forEach(([k,color],j)=>{
+   const h=v[k]/max*plotH,x=center+(j-1)*(barW+3)-barW/2;
+   ctx.fillStyle=color;ctx.fillRect(x,bottom-h,barW,h);
+  });
+  ctx.fillStyle='#475569';ctx.textAlign='center';ctx.font='13px Arial';ctx.fillText(label.length>7?label.slice(5):label,center,H-15);
+ });
+ ctx.textAlign='right';ctx.font='13px Arial';
+ [['مدخول','#10b981'],['مصروف','#ef4444'],['فائض','#f59e0b']].forEach(([t,col],i)=>{ctx.fillStyle=col;ctx.fillRect(W-230+i*78,4,10,10);ctx.fillStyle='#475569';ctx.fillText(t,W-215+i*78,14);});
+}
+window.addEventListener('load',async()=>{
+ loadExtra();recalcBalance();updateCalUI();updateWaterUI();updateExtraMetrics();
+ if(extraState.passwordHash){const ok=await checkLocalPassword();if(!ok){document.body.innerHTML='<div style="font-family:Arial;text-align:center;padding:40px;direction:rtl">تم إيقاف العرض. أعد فتح التطبيق وأدخل كلمة المرور.</div>';}}
+});
+</script>
+
+</body>
+</html>
