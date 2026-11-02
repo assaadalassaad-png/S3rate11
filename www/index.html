@@ -139,6 +139,22 @@ body { background-color: var(--bg-color); color: var(--text-main); display: flex
 .settings-row{display:flex;gap:8px;margin-top:8px}
 .settings-row button{flex:1}
 
+
+.totals-fold{padding:0;overflow:hidden}
+.totals-fold>summary{list-style:none;cursor:pointer;padding:14px 16px;margin:0;min-height:52px}
+.totals-fold>summary::-webkit-details-marker{display:none}
+.fold-sign{font-size:23px;font-weight:900;color:var(--primary-blue);width:28px;height:28px;border-radius:50%;background:#eff6ff;display:inline-flex;align-items:center;justify-content:center;flex:0 0 28px}
+.totals-fold[open] .fold-sign{font-size:0}
+.totals-fold[open] .fold-sign:after{content:'−';font-size:23px}
+.period-grid{display:grid;grid-template-columns:1fr;gap:9px;padding:0 12px 10px}
+.period-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:11px}
+.period-box h4{font-size:13px;margin-bottom:2px;color:var(--text-main)}
+.period-box>small{font-size:10px;color:var(--text-sub);display:block;margin-bottom:7px}
+.period-line{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid #e2e8f0;font-size:12px}
+.period-line b{font-variant-numeric:tabular-nums}
+.income-text{color:#059669}.expense-text{color:#dc2626}.surplus-text{color:#b45309}
+.period-note{font-size:10px;color:var(--text-sub);padding:0 14px 13px;line-height:1.6}
+
 </style>
 </head>
 <body>
@@ -158,16 +174,16 @@ body { background-color: var(--bg-color); color: var(--text-main); display: flex
 <div class="page-view active" id="page-calories">
 
 <div class="card" style="text-align: center;">
-<div class="card-title" style="justify-content: center;"><span>رصيد السعرات المستهدف للتصفير</span> <i class="fa-regular fa-eye"></i></div>
+<div class="card-title" style="justify-content: center;"><span>رصيد السعرات الكلي المتبقي</span> <i class="fa-regular fa-eye"></i></div>
 <div class="card-value"><span id="main-cal-val">77,500</span> <span style="font-size:16px;">سعرة</span></div>
-<div style="font-size: 11px; color: var(--text-sub); margin-top: 4px;">المدخول يرفع الرصيد • المصروف والاحتياج يخفضانه</div>
+<div style="font-size: 11px; color: var(--text-sub); margin-top: 4px;">الرصيد الكلي التراكمي — لا يتصفّر مع تغيّر اليوم</div>
 </div>
 
 <!-- Surplus Card -->
 <div class="card" style="background:#fefce8; border:1px solid #fde047; text-align:center;">
-<div class="card-title" style="justify-content: center; color:#854d0e;"><i class="fa-solid fa-bolt"></i> بطاقة الفائض (أقل من الاحتياج 1500)</div>
+<div class="card-title" style="justify-content: center; color:#854d0e;"><i class="fa-solid fa-bolt"></i> المتبقي من هدف اليوم (1500 سعرة)</div>
 <div class="card-value" style="color:#a16207; font-size:26px;" id="surplus-val">1,500 <span style="font-size:14px;">سعرة</span></div>
-<div style="font-size: 10px; color: #a16207; margin-top:2px;">= 1500 ناقص المدخول الحالي (مؤشر مستقل لا يؤثر بالحسابات)</div>
+<div style="font-size: 10px; color: #a16207; margin-top:2px;">يُحسب من مدخول ومصروف اليوم فقط، ويعود إلى 1500 عند بداية يوم جديد</div>
 </div>
 
 <div class="action-row">
@@ -198,6 +214,20 @@ body { background-color: var(--bg-color); color: var(--text-main); display: flex
 <div class="box-val" style="color:#991b1b;" id="m-f-rem">60.0 غ</div>
 </div>
 </div>
+
+<details class="card" id="daily-macros-card">
+  <summary class="card-title" style="cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center"><span>📊 جدول العناصر الغذائية اليومي</span><span class="macro-toggle" aria-hidden="true">+</span></summary>
+  <div style="overflow-x:auto"><table class="weight-table" style="min-width:300px">
+    <thead><tr><th>العنصر</th><th>الهدف</th><th>المتناول اليوم</th><th>المتبقي</th></tr></thead>
+    <tbody>
+      <tr><td>البروتين</td><td id="tbl-p-target">0 غ</td><td id="tbl-p-eaten">0 غ</td><td id="tbl-p-left">0 غ</td></tr>
+      <tr><td>الكربوهيدرات</td><td id="tbl-c-target">0 غ</td><td id="tbl-c-eaten">0 غ</td><td id="tbl-c-left">0 غ</td></tr>
+      <tr><td>الدهون</td><td id="tbl-f-target">0 غ</td><td id="tbl-f-eaten">0 غ</td><td id="tbl-f-left">0 غ</td></tr>
+    </tbody>
+  </table></div>
+  <div style="font-size:10px;color:var(--text-sub);margin-top:8px">الاستهلاك يتصفّر يومياً تلقائياً، أما الأهداف الغذائية فتبقى كما هي حتى تغيّرها من إعدادات الوزن.</div>
+</details>
+<style>#daily-macros-card .macro-toggle{font-size:22px;font-weight:900;color:var(--primary-blue);width:28px;height:28px;border-radius:50%;background:#eff6ff;display:inline-flex;align-items:center;justify-content:center}#daily-macros-card[open] .macro-toggle{font-size:0}#daily-macros-card[open] .macro-toggle:after{content:'−';font-size:22px}</style>
 
 <div class="grid-2">
 <div class="box-item">
@@ -236,6 +266,28 @@ body { background-color: var(--bg-color); color: var(--text-main); display: flex
     <div class="metric-pair"><div class="metric-mini"><small>القيمة</small><strong id="sur-value">0</strong></div><div class="metric-mini"><small>عدد العمليات</small><strong id="sur-count">0</strong></div></div>
   </div>
 </div>
+
+<details class="card totals-fold" id="period-totals-card">
+  <summary class="card-title"><span>📅 إجمالي المدخول والمصروف والفائض حسب الفترة</span><span class="fold-sign" aria-hidden="true">+</span></summary>
+  <div class="period-grid">
+    <section class="period-box"><h4>اليومي</h4><small id="period-day-label"></small>
+      <div class="period-line income-text">المدخول <b id="day-inc">0</b></div>
+      <div class="period-line expense-text">المصروف <b id="day-exp">0</b></div>
+      <div class="period-line surplus-text">الفائض المسجل <b id="day-sur">0</b></div>
+    </section>
+    <section class="period-box"><h4>الشهري</h4><small id="period-month-label"></small>
+      <div class="period-line income-text">المدخول <b id="month-inc">0</b></div>
+      <div class="period-line expense-text">المصروف <b id="month-exp">0</b></div>
+      <div class="period-line surplus-text">الفائض المسجل <b id="month-sur">0</b></div>
+    </section>
+    <section class="period-box"><h4>التراكمي</h4><small>منذ بداية التسجيل</small>
+      <div class="period-line income-text">المدخول <b id="all-inc">0</b></div>
+      <div class="period-line expense-text">المصروف <b id="all-exp">0</b></div>
+      <div class="period-line surplus-text">الفائض المسجل <b id="all-sur">0</b></div>
+    </section>
+  </div>
+  <p class="period-note">الفائض المسجل هو مجموع عمليات الفائض التي أدخلتها يدوياً، وهو منفصل عن المتبقي من هدف اليوم 1500 سعرة.</p>
+</details>
 
 <div class="grid-4">
 <div class="cat-box" onclick="openActionForm('add_food')">
@@ -417,51 +469,509 @@ body { background-color: var(--bg-color); color: var(--text-main); display: flex
 
 <script>
 const STORE_KEY = 'calorie_app_v2';
-let foodsDB = [
-{name:"خيار",cal:15,p:0.7,c:3.6,f:0.1},{name:"بندورة",cal:18,p:0.9,c:3.9,f:0.2},
-{name:"خس",cal:15,p:1.4,c:2.9,f:0.2},{name:"ملفوف",cal:25,p:1.3,c:5.8,f:0.1},
-{name:"زهرة",cal:25,p:1.9,c:5,f:0.3},{name:"بروكلي",cal:34,p:2.8,c:6.6,f:0.4},
-{name:"بطاطا نيئة",cal:77,p:2,c:17.5,f:0.1},{name:"بطاطا مسلوقة",cal:87,p:1.9,c:20.1,f:0.1},
-{name:"باذنجان",cal:25,p:1,c:6,f:0.2},{name:"كوسا",cal:17,p:1.2,c:3.1,f:0.3},
-{name:"فليفلة",cal:31,p:1,c:6,f:0.3},{name:"بصل",cal:40,p:1.1,c:9.3,f:0.1},
-{name:"ثوم",cal:149,p:6.4,c:33,f:0.5},{name:"جزر",cal:41,p:0.9,c:9.6,f:0.2},
-{name:"تفاح",cal:52,p:0.3,c:14,f:0.2},{name:"موز",cal:89,p:1.1,c:23,f:0.3},
-{name:"برتقال",cal:47,p:0.9,c:11.8,f:0.1},{name:"عنب",cal:69,p:0.7,c:18,f:0.2},
-{name:"بطيخ",cal:30,p:0.6,c:7.6,f:0.2},{name:"خوخ",cal:39,p:0.9,c:9.5,f:0.3},
-{name:"رز أبيض مطبوخ",cal:130,p:2.7,c:28.2,f:0.3},{name:"برغل مطبوخ",cal:83,p:3.1,c:18.6,f:0.2},
-{name:"فريكة مطبوخة",cal:120,p:4,c:24,f:1},{name:"خبز عربي",cal:275,p:9,c:55,f:1.2},
-{name:"خبز أبيض",cal:265,p:9,c:49,f:3.2},{name:"شوفان جاف",cal:389,p:16.9,c:66.3,f:6.9},
-{name:"عدس مطبوخ",cal:116,p:9,c:20.1,f:0.4},{name:"حمص مسلوق",cal:164,p:8.9,c:27.4,f:2.6},
-{name:"فول مطبوخ",cal:110,p:7.6,c:19.7,f:0.4},{name:"فاصولياء مطبوخة",cal:127,p:8.7,c:23.7,f:0.5},
-{name:"صدر دجاج مطبوخ",cal:165,p:31,c:0,f:3.6},{name:"فخذ دجاج مطبوخ",cal:209,p:26,c:0,f:11},
-{name:"لحم بقري قليل الدهن مطبوخ",cal:217,p:26,c:0,f:12},{name:"تونة بالماء مصفاة",cal:116,p:26,f:1,c:0},
-{name:"لبنة",cal:190,p:10,c:6,f:15},{name:"لبن كامل الدسم",cal:61,p:3.5,c:4.7,f:3.3},
-{name:"جبنة بيضاء",cal:264,p:14,c:4,f:21},{name:"زيت زيتون",cal:884,p:0,c:0,f:100},
-{name:"جوز",cal:654,p:15.2,c:13.7,f:65.2},{name:"لوز",cal:579,p:21.2,c:21.6,f:49.9},
-{name:"فلافل مقلية",cal:333,p:13,c:31,f:18},{name:"حمص بطحينة",cal:166,p:8,c:14,f:9.6},
-{name:"بابا غنوج",cal:120,p:2,c:8,f:9},{name:"متبل",cal:150,p:3,c:8,f:12},
-{name:"تبولة",cal:120,p:3,c:13,f:6},{name:"فتوش",cal:90,p:2,c:10,f:5},
-{name:"مجدرة",cal:145,p:6,c:24,f:3},{name:"كبة مقلية",cal:260,p:12,c:22,f:14},
-{name:"شاورما دجاج",cal:215,p:22,c:4,f:12},{name:"شاورما لحم",cal:250,p:20,c:5,f:17},
-{name:"ورق عنب",cal:150,p:3,c:24,f:5},{name:"محشي كوسا",cal:130,p:5,c:12,f:6},
-{name:"مكدوس",cal:280,p:5,c:10,f:25},{name:"شنكليش",cal:275,p:20,c:6,f:20},
-{name:"دبس رمان",cal:260,p:0,c:65,f:0},{name:"زعتر",cal:420,p:10,c:35,f:28},
-{name:"سمسم",cal:573,p:17,c:23,f:50},{name:"طحينة",cal:595,p:17,c:21,f:53},
-{name:"فريكة نيئة",cal:340,p:12,c:70,f:2},{name:"برغل ناعم جاف",cal:342,p:12,c:76,f:1.3},
-{name:"كوسا بلبن",cal:110,p:5,c:8,f:6},{name:"يبرق",cal:165,p:5,c:20,f:7},
-{name:"شيش برك",cal:220,p:10,c:18,f:12},{name:"مقلوبة",cal:180,p:6,c:20,f:8},
-{name:"رز بحليب",cal:130,p:3,c:22,f:3},{name:"مهلبية",cal:140,p:3,c:24,f:3},
-{name:"بقلاوة",cal:430,p:7,c:49,f:24},{name:"معمول",cal:420,p:7,c:58,f:18},
-{name:"تمر",cal:282,p:2.5,c:75,f:0.4},{name:"تين طازج",cal:74,p:0.8,c:19,f:0.3},
-{name:"كرز",cal:63,p:1.1,c:16,f:0.2},{name:"إجاص",cal:57,p:0.4,c:15,f:0.1},
-{name:"خبز شوفان",cal:352,p:12,c:70,f:3.2},{name:"لحم غنم مطبوخ",cal:260,p:25,c:0,f:18},
-{name:"تفاح أخضر",cal:52,p:0.3,c:14,f:0.2},{name:"منسف لحم",cal:385,p:21,c:28,f:19},
-{name:"لبن عيران",cal:40,p:2.2,c:3.5,f:1.8},{name:"لحم بعجين",cal:260,p:15,c:30,f:14},
-{name:"كباب مشوي",cal:250,p:20,c:2,f:18},{name:"منقوشة زعتر",cal:375,p:11,c:48,f:15},
-{name:"كبة مشوية",cal:180,p:10,c:18,f:7},{name:"يالنجي",cal:150,p:2,c:24,f:6},
-{name:"بيض كامل",cal:143,p:12.6,c:0.7,f:9.5},{name:"بياض البيض",cal:52,p:10.9,c:0.7,f:0.2},
-{name:"حليب قليل الدسم",cal:46,p:3.4,c:5,f:1},{name:"بطاطا مقلية",cal:312,p:3.4,c:41,f:15}
-];
+
+const FOOD_DB_TEXT = `خيار|15|0.7|3.6|0.1
+بندورة|18|0.9|3.9|0.2
+خس|15|1.4|2.9|0.2
+ملفوف|25|1.3|5.8|0.1
+زهرة|25|1.9|5|0.3
+بروكلي|34|2.8|6.6|0.4
+بطاطا|77|2|17|0.1
+بطاطا مسلوقة|87|1.9|20.1|0.1
+باذنجان|25|1|6|0.2
+كوسا|17|1.2|3.1|0.3
+فليفلة|31|1|6|0.3
+بصل|40|1.1|9.3|0.1
+ثوم|149|6.4|33|0.5
+جزر|41|0.9|9.6|0.2
+تفاح|52|0.3|14|0.2
+موز|89|1.1|23|0.3
+برتقال|47|0.9|11.8|0.1
+عنب|69|0.7|18|0.2
+بطيخ|30|0.6|7.6|0.2
+خوخ|39|0.9|9.5|0.3
+رز مطبوخ|130|2.7|28|0.3
+برغل مطبوخ|83|3.1|18.6|0.2
+فريكة مطبوخة|120|4|24|1
+خبز عربي|275|9|55|1.2
+خبز أبيض|265|9|49|3.2
+شوفان|389|16.9|66|6.9
+عدس مطبوخ|116|9|20|0.4
+حمص مطبوخ|164|8.9|27.4|2.6
+فول مطبوخ|110|7.6|19.7|0.4
+فاصولياء مطبوخة|127|8.7|23.7|0.5
+صدر دجاج|165|31|0|3.6
+فخذ دجاج|209|26|0|11
+لحم بقري قليل الدهن|217|26|0|12
+تونة بالماء|116|26|0|1
+لبنة|190|10|6|15
+لبن|61|3.5|4.7|3.3
+جبنة بيضاء|264|14|4|21
+زيت زيتون|119|0|0|13.5
+جوز|654|15.2|13.7|65.2
+لوز|579|21.2|21.6|49.9
+فلافل|333|13|31|18
+حمص بطحينة|166|8|14|9.6
+بابا غنوج|120|2|8|9
+متبل|150|3|8|12
+تبولة|120|3|13|6
+فتوش|90|2|10|5
+مجدرة|145|6|24|3
+كبة مقلية|260|12|22|14
+شاورما دجاج|215|22|4|12
+شاورما لحم|250|20|5|17
+ورق عنب|150|3|24|5
+محشي كوسا|130|5|12|6
+مكدوس|280|5|10|25
+شنكليش|275|20|6|20
+دبس رمان|260|0|65|0
+زعتر|420|10|35|28
+سمسم|573|17|23|50
+طحينة|595|17|21|53
+فريكة نيئة|340|12|70|2
+برغل ناعم|342|12|76|1.3
+كوسا بلبن|110|5|8|6
+يبرق|165|5|20|7
+شيش برك|220|10|18|12
+مقلوبة|180|6|20|8
+رز بحليب|130|3|22|3
+مهلبية|140|3|24|3
+بقلاوة|430|7|49|24
+معمول|420|7|58|18
+تمر|282|2.5|75|0.4
+تين|74|0.8|19|0.3
+كرز|63|1.1|16|0.2
+إجاص|57|0.4|15|0.1
+رمان|83|1.7|19|1.2
+فستق|562|20|28|45
+كاجو|553|18|30|44
+بزر دوار الشمس|584|21|20|51
+فول أخضر|35|2.8|6.7|0.4
+بازلاء|81|5.4|14.5|0.4
+سبانخ|23|2.9|3.6|0.4
+سلق|19|1.8|3.7|0.2
+فجل|16|0.7|3.4|0.1
+لفت|28|0.9|6.4|0.1
+بامية|33|1.9|7.5|0.2
+ذرة مسلوقة|96|3.4|21|1.5
+زبيب|299|3.1|79|0.5
+مشمش|48|1.4|11|0.4
+دراق|39|0.9|9.5|0.3
+مانجو|60|0.8|15|0.4
+أناناس|50|0.5|13|0.1
+لب سوري|584|20|20|51
+بندق|628|15|17|61
+كبة مشوية|210|16|15|10
+محمرة|300|6|20|22
+مسخن|280|11|22|16
+كنافة|420|8|50|21
+عوامة|390|4|60|15
+رز أبيض نيء|365|7.1|80|0.7
+رز بني|370|7.9|77|2.9
+برغل|342|12.3|76|1.3
+فريكة|340|12|70|2
+خبز أسمر|247|13|41|4.2
+معكرونة جافة|371|13|75|1.5
+سميد|360|12.7|72.8|1.1
+عدس|353|25|60|1.1
+حمص حب|364|19|61|6
+فول يابس|341|26|58|1.5
+فاصولياء بيضاء|333|24|60|0.8
+دجاج كامل|239|27|0|14
+لحم غنم|294|25|0|21
+كبدة غنم|135|20|4|3.6
+كبدة دجاج|119|17|1|4.8
+سمك تونة بالماء|116|26|0|1
+سردين|208|25|0|11
+سلمون|208|20|0|13
+جبنة صفراء|402|25|1.3|33
+حليب كامل الدسم|61|3.2|4.8|3.3
+كمون|375|18|44|22
+كزبرة ناشفة|298|12|55|18
+قرفة|247|4|81|1.2
+كركم|354|8|65|10
+بابريكا|282|14|54|13
+زنجبيل مطحون|335|9|71|4
+هيل|311|11|68|7
+قرنفل|274|6|66|13
+يانسون|337|18|50|16
+شمر|345|16|52|15
+نعناع مجفف|285|20|53|6
+زعتر بري|276|9|64|7
+إكليل الجبل|331|5|64|15
+أوريغانو|265|9|69|4
+ريحان مجفف|233|23|48|4
+معجون بندورة|82|4.3|19|0.5
+كاتشب|112|1.3|26|0.2
+مايونيز|680|1|1|75
+خردل|66|4.4|5.8|4.4
+خل أبيض|18|0|0|0
+زيت دوار الشمس|884|0|0|100
+زبدة|717|0.9|0.1|81
+سمنة|900|0|0|100
+بزر يقطين|559|30|11|49
+فستق حلبي|562|20|28|45
+فول سوداني|567|26|16|49
+دبس تمر|310|2|75|0.2
+عسل|304|0.3|82|0
+سكر أبيض|387|0|100|0
+سكر بني|380|0|98|0
+ملح|0|0|0|0
+فلفل أسود|251|10|64|3.3
+شاي أسود|1|0|0.3|0
+شاي أخضر|1|0|0.2|0
+قهوة سوداء|2|0.3|0|0
+قهوة عربية|2|0.2|0|0
+نسكافيه|353|12|75|0.5
+كاكاو خام|228|20|58|14
+حليب قليل الدسم|42|3.4|5|1
+حليب خالي الدسم|34|3.4|5|0.1
+لبن رائب|63|3.5|4.7|3.5
+عيران|37|2|3.5|1.5
+عصير برتقال طبيعي|45|0.7|10.4|0.2
+عصير تفاح طبيعي|46|0.1|11.3|0.1
+عصير رمان|54|0.2|13|0.1
+عصير ليمون|22|0.4|6.9|0.2
+كولا|42|0|10.6|0
+دايت كولا|1|0|0|0
+سبرايت|38|0|9.8|0
+صودا|0|0|0|0
+شراب تمر هندي|60|0.3|15|0.1
+شراب خروب|65|0.4|16|0.1
+ذرة معلبة|96|3.4|21|1.5
+بازلاء معلبة|69|4.5|12|0.4
+فاصولياء حمراء معلبة|127|8.7|22.8|0.5
+حمص معلب|164|8.9|27.4|2.6
+فول مدمس معلب|110|7.6|19.7|0.6
+تونة بالزيت|198|29|0|8
+سردين معلب|208|25|0|11
+فطر معلب|22|3.1|3.3|0.3
+زيتون أخضر|145|1|3.8|15.3
+زيتون أسود|116|0.8|6|10.9
+مخلل خيار|11|0.3|2.3|0.2
+مخلل لفت|28|0.9|6.4|0.1
+مخلل باذنجان|35|1.2|7|0.2
+معجون فليفلة حمراء|140|4|31|1
+صلصة بيتزا|54|1.8|11|0.4
+صلصة باربكيو|172|1.5|40|0.5
+صلصة الصويا|53|8|4.9|0.6
+خل تفاح|21|0|0.9|0
+ماء جوز الهند|19|0.7|3.7|0.2
+فول مدمس|110|7.6|18.7|0.4
+مسبحة|180|8|18|8
+حمص بالطحينة|166|7.9|14.3|9.6
+فتة حمص|220|8|24|10
+لبنة بالزعتر|250|11|8|20
+جبنة حلوم|321|22|2|26
+جبنة قشقوان|404|25|1|33
+مرتديلا|311|13|3|28
+زيتون|145|1|4|15
+مربى|250|0.3|65|0.2
+زعتر مع زيت|470|10|35|35
+مناقيش زعتر|330|8|42|15
+مناقيش جبنة|320|12|35|16
+مناقيش لحمة|290|13|30|14
+فطيرة جبنة|310|10|34|15
+فطيرة سبانخ|250|7|33|10
+بيتزا جبنة|266|11|33|10
+بيتزا خضار|240|10|34|8
+بيتزا مرتديلا|290|13|30|13
+بيض مسلوق|155|13|1.1|11
+بيض مقلي|196|13.6|1|15
+شكشوكة|140|7|6|10
+سجق|301|16|2|25
+شوكولاتة بالحليب|535|7.6|59.4|29.7
+شوكولاتة داكنة|598|7.8|45.9|42.6
+بسكويت شاي|450|6|72|14
+كوكيز|488|5.9|68.5|23.7
+كيك فانيلا|389|4.7|58|16
+دونات|452|4.9|51|25
+كرواسون|406|8.2|45.8|21
+ويفر|518|6.8|61|27
+آيس كريم فانيلا|207|3.5|24|11
+فشار بالزيت|535|7.3|57.2|28.1
+رقائق بطاطس|536|7|53|35
+بريتزل|380|10|80|2.5
+ماء|0|0|0|0
+نسكافيه بدون سكر|2|0.3|0.3|0
+عصير برتقال|45|0.7|10.4|0.2
+عصير تفاح|46|0.1|11.3|0.1
+مشروب غازي|42|0|10.6|0
+مشروب طاقة|45|0|11|0
+جوز البقان|691|9.2|13.9|72
+صنوبر|673|13.7|13.1|68.4
+مكاديميا|718|7.9|13.8|75.8
+لب دوار الشمس|584|20.8|20|51.5
+لب اليقطين|559|30.2|10.7|49.1
+بقلاوة بالفستق|520|8|52|31
+بقلاوة بالجوز|500|7|55|29
+أصابع بقلاوة|510|7|54|30
+عش البلبل|515|8|50|32
+بلورية|530|8|51|33
+مبرومة بالفستق|540|9|49|35
+مبرومة بالجوز|515|7|53|31
+برازق|485|8|58|24
+غريبة|495|6|61|25
+معمول فستق|470|8|56|21
+معمول جوز|455|7|58|19
+معمول تمر|440|6|63|16
+نمورة|365|5|60|11
+هريسة|370|5|61|11
+كنافة ناعمة|430|8|52|20
+كنافة خشنة|425|8|51|20
+كنافة بالقشطة|390|9|42|20
+زنود الست|455|7|43|28
+شعيبيات بالقشطة|430|8|40|25
+شعيبيات بالجوز|445|7|44|27
+شعيبيات بالفستق|455|8|42|29
+وربات بالقشطة|410|8|39|23
+وربات بالفستق|430|8|41|26
+وربات بالجوز|420|7|43|24
+حلاوة الجبن|315|8|47|10
+كلاج بالقشطة|395|8|40|21
+كلاج بالجوز|420|7|44|24
+مفروكة|410|9|38|24
+عش السرايا|290|4|56|6
+ليالي لبنان|180|5|29|5
+موالح صيني|500|10|58|25
+جبنة سوري|265|14|4|21
+لب أبيض|559|30.2|10.7|49
+لب أسود|584|20.8|20|51.5
+حمص محمص|364|19|61|6
+ذرة محمصة|446|9|74|15
+شيبس بطاطا|536|7|53|35
+شيبس ذرة|500|6|63|24
+كراكر مالح|430|10|72|11
+أرز منفوش مالح|402|7|83|4
+ميكس مكسرات مملحة|610|20|19|54
+لبن زبادي كامل الدسم|61|3.5|4.7|3.3
+لبن زبادي قليل الدسم|50|4|5|1.5
+لبنة قليلة الدسم|140|12|8|7
+جبنة فيتا|265|14|4|21
+جبنة موزاريلا|280|28|3|17
+جبنة شيدر|403|25|1.3|33
+جبنة كريمية|342|6|4|34
+جبنة مثلثات|290|12|8|24
+قشطة|340|2|3|36
+كريمة طبخ|195|2.5|4|20
+بامية باللحمة|82|6|5|4.5
+فاصولياء خضراء باللحمة|95|6.5|7|5
+فاصولياء ناعمة باللحمة|92|6.5|6.5|5
+فاصولياء عريضة باللحمة|100|6.8|8|5
+بطاطا باللحمة|115|6.5|10|6
+بازلاء باللحمة|120|7|11|6
+ملوخية بالدجاج|110|9|5|6
+سبانخ باللحمة|98|7|6|5
+شيخ المحشي|145|8|8|9
+داود باشا|170|10|7|11
+شاكرية|155|9|5|11
+كبة باللبن|180|9|12|10
+كوسا محشي|140|7|13|7
+ملفوف محشي|145|4|22|5
+رز أبيض مطبوخ|130|2.7|28.2|0.3
+فاصولياء خضراء|90|5|9|4
+فاصولياء ناعمة|95|5|10|4
+فاصولياء عريضة|100|5|11|4
+ملوخية|80|5|7|3
+قرنبيط|78|3|8|3
+لوبياء|96|5|10|4
+يخنة جزر|88|2|12|3
+يخنة مشروم|65|3|6|2
+يخنة بازلاء وجزر|95|4|12|3
+يخنة بندورة|60|2|7|2
+يخنة كرفس|68|2|7|3
+فول|125|8|17|3
+لوبيا بزيت|105|4|12|5
+بطاطا وجزر|100|3|15|3
+خضار مشكلة|82|3|10|3
+يخنة باذنجان|90|2|10|4
+باذنجان محشي|175|7|16|9
+فليفلة محشية|170|7|15|8
+بطاطا محشية|180|6|20|8
+كبة سفرجلية|205|10|18|10
+كوسا باللبن|145|8|9|8
+باذنجان باللبن|150|7|10|9
+محشي بندورة|165|7|15|8
+محشي بصل|175|6|19|8
+محشي ورق سلق|160|5|20|6
+محشي لوبياء|170|7|16|8
+محشي كرنب|165|7|15|7
+محشي مشكلة|175|7|17|8
+كوسا ورز|155|4|24|5
+باذنجان ورز|160|4|24|6
+فليفلة ورز|158|4|23|6
+ورق عنب بالزيت|195|3|30|7
+ورق عنب باللحم|205|8|20|10
+محشي قرع|160|6|16|7
+محشي جزر|155|5|18|6
+محشي فطر|145|7|10|7
+رز بالشعيرية|170|3.5|33|3
+رز بالخضار|145|3|28|2
+رز مكسيكانو|155|4|29|3
+رز بالبازلاء|150|4|28|2.5
+رز بالجزر|148|3|30|2
+كبسة|180|8|24|6
+برياني|190|8|25|7
+منسف|210|10|20|9
+برغل مفلفل|145|4|28|2
+رز بالدجاج|185|10|22|6
+رز باللحم|195|9|21|8
+رز بالكاري|165|4|29|4
+رز بالذرة|150|3|30|2
+رز بالفطر|145|4|27|2
+رز بالحمص|165|6|28|3
+برغل بالبندورة|140|4|27|2
+برغل بالخضار|135|4|26|2
+فريكة بالدجاج|180|10|22|5
+فريكة باللحم|195|10|20|8
+أرز أبيض مسلوق|130|2.5|28|0.3
+برغل مسلوق|120|3.5|25|0.5
+فريكة مسلوقة|135|5|24|1
+رز صيادية|185|9|23|6
+كبة باللبن|185|10|12|11
+داود باشا|210|12|10|14
+كبة بالصينية|245|11|18|15
+فتة باذنجان|180|7|20|8
+حرّاق إصبعو|165|6|26|4
+مسقعة|120|3|10|7
+سجق حلبي|320|15|3|28
+كباب كرز|230|15|10|14
+أوصال|250|20|2|18
+فتة دجاج|210|12|18|10
+لبنية|165|9|9|10
+كشك|140|6|18|4
+كباب لحم|250|26|2|16
+كباب دجاج|210|27|1|10
+شيش طاووق|147|17.83|1.05|7.57
+شيش كباب|245|25|1|16
+أوصال لحم|240|27|0|15
+ريش غنم|320|23|0|26
+كفتة مشوية|255|24|4|17
+عرائس لحم|290|16|20|16
+جوانح دجاج مشوية|225|24|1|15
+صدر دجاج مشوي|165|31|0|4
+ورك دجاج مشوي|215|26|0|12
+سمك مشوي|160|24|0|5
+سجق مشوي|315|15|3|28
+كبدة مشوية|190|27|4|6
+قلوب دجاج مشوية|185|26|1|8
+لحمة مشوية|260|28|0|17
+طاووق بالثوم|205|28|2|9
+كباب حلبي|255|25|2|17
+كباب خشخاش|240|24|4|15
+كباب باذنجان|220|18|8|14
+أسياخ لحم|245|27|1|16
+أسياخ دجاج|180|30|1|5
+برغر مشوي|250|20|10|15
+نقانق مشوية|300|14|3|27
+سمان مشوي|235|25|0|15
+صفيحة بعلبكية|310|13|31|16
+فطيرة بطاطا|250|6|40|7
+فطيرة زعتر|300|8|43|11
+معروك|340|8|58|8
+خبز تنور|270|8|54|2
+خبز صاج|265|8|53|2
+بيتزا لحم|295|14|30|13
+كرواسون سادة|406|8|45|21
+كرواسون جبنة|420|10|40|24
+فطيرة سجق|330|13|30|18
+فطيرة دجاج|290|15|29|12
+سمبوسك جبنة|320|9|30|18
+سمبوسك لحم|340|12|28|21
+سمبوسك سبانخ|290|7|31|15
+مطبق|310|10|35|14
+خبز بالسمسم|285|9|52|4
+متبل باذنجان|110|2|8|7
+لبنة بالثوم|190|10|6|13
+سلطة عربية|45|1.5|6|2
+سلطة خضراء|30|1|5|1
+سلطة خيار باللبن|70|3|5|4
+سلطة ملفوف|55|1|8|2
+سلطة جرجير|35|2|4|1
+سلطة شمندر|60|2|10|1
+سلطة بطاطا|140|3|20|5
+فلفل مخلل|25|1|5|0
+ثومية|480|2|8|50
+كريمة ثوم|430|2|7|44
+دبس فليفلة|180|3|36|2
+قطايف بالقشطة|300|7|42|10
+قطايف بالجوز|340|6|45|13
+مشبك|410|4|72|12
+راحة|330|1|82|0
+حلاوة جبن|320|8|44|12
+أرز بحليب|135|4|24|2
+كريم كراميل|150|4|26|2
+بوظة عربية|220|5|28|10
+مغلي|140|3|30|1
+سندويشة شاورما دجاج|240|15|20|11
+سندويشة شاورما لحم|280|15|19|16
+سندويشة فلافل|290|9|35|13
+سندويشة كبدة|250|16|20|10
+سندويشة سجق|320|14|20|20
+سندويشة كباب|270|17|18|14
+سندويشة شيش طاووق|230|18|19|8
+سندويشة برغر|265|14|22|13
+سندويشة زنجر|300|16|24|16
+سندويشة بطاطا|220|5|35|7
+سندويشة جبنة|280|12|28|13
+سندويشة لبنة|240|9|27|10
+سندويشة زعتر|310|8|43|12
+سندويشة مرتديلا|295|12|25|16
+سندويشة نقانق|315|13|22|19
+سندويشة تونة|210|17|18|7
+سندويشة بيض|230|11|21|11
+سندويشة حلوم|300|16|20|18
+سندويشة دجاج مشوي|220|18|20|6
+سندويشة أوصال|275|18|18|15
+سندويشة كفتة|270|17|19|14
+سندويشة فاهيتا|235|16|20|8
+سندويشة هوت دوغ|290|11|24|17
+سندويشة مسحب|295|17|23|15
+سندويشة بطاطا مع جبنة|260|8|30|11
+إسبريسو|2|0.3|0|0
+قهوة سادة|2|0.2|0|0
+شاي|1|0|0.2|0
+كركديه|1|0|0.2|0
+بابونج|1|0|0.2|0
+نعناع|1|0|0.2|0
+ليموناضة|40|0.1|10|0
+عصير مانجو|60|0.4|15|0.2
+عصير جزر|39|0.9|9|0.2
+لبن قليل الدسم|46|3.4|5|1.5
+لبن كامل الدسم|61|3.3|4.7|3.3
+مشروب طاقة خالٍ من السكر|2|0|0|0
+كولا دايت|1|0|0|0
+خبز شوفان|352|12|70|3.2
+لحم غنم مطبوخ|260|25|0|18
+تفاح أخضر|52|0.3|14|0.2
+منسف لحم|385|21|28|19
+لبن عيران|125|7|9.5|6.5
+لحم بعجين|260|15|30|14
+طرابيش|500|8|65|28
+كباب جاموس|305|17.9|4.4|24
+منفوشة|375|11|78|4.5
+كبة تركية|180|4|35|15
+يالنجة|150|4|35|8
+محشي بنشي|111|5.8|15|3.2
+رز بنشي|89|1.8|18|1.5
+فاصولية مع لحمة مفرومة|85|7.5|7|2.8
+خبز صاج|290|8|53|5
+جبنة مشللة|290|22|3|22
+معجوقة فروج|167|20.2|2.1|8.6
+سبع دول|53|3.4|4.8|2.5
+اكسبريس|100|10|20|0
+تفاح اخضر|194|1.4|45.4|0.6
+قرص فلافل (100غ)|333|13|31|18
+لبن زبادي|61|3.5|4.7|3.3
+جبنة فيتا|265|14|4|21
+خبز شوفان|352|12|70|3.2
+فاصولية مع لحمة مفرومة|85|7.5|7|2.8
+محشي بنشي|111|5.8|15|3.2
+رز بنشي|89|1.8|18|1.5`;
+const DEFAULT_FOODS = FOOD_DB_TEXT.trim().split('\n').map(line=>{const [name,cal,p,c,f]=line.split('|');return {name,cal:Number(cal),p:Number(p),c:Number(c),f:Number(f)};});
+function mergeFoodDatabase(saved){const map=new Map(DEFAULT_FOODS.map(x=>[x.name,x]));(saved||[]).forEach(x=>{if(x&&x.name&&!map.has(x.name))map.set(x.name,x);});return [...map.values()];}
+
+let foodsDB = DEFAULT_FOODS.slice();
 let activitiesDB = [{name:"مشي",rate:10},{name:"دراجة هوائية",rate:8},{name:"جري",rate:14},{name:"سباحة",rate:10},{name:"تمارين حديد",rate:6},{name:"نط الحبل",rate:15}];
 
 let currentCal=0,totalInc=0,totalExp=0,curP=0,curC=0,curF=0;
@@ -474,12 +984,12 @@ function dateInfo(){const d=new Date();return {dateStr:d.getFullYear()+'-'+Strin
 function getDateTimeData(){return dateInfo();}
 function num(id){return Number(document.getElementById(id)?.value)||0;}
 function saveData(){try{localStorage.setItem(STORE_KEY,JSON.stringify({currentCal,totalInc,totalExp,curP,curC,curF,targetP,targetC,targetF,currentWeight,transactionsLog,weightLog,foodsDB,activitiesDB,settings}));}catch(e){console.warn('تعذر حفظ البيانات',e);}}
-function loadData(){try{const x=JSON.parse(localStorage.getItem(STORE_KEY)||'null');if(!x)return;for(const k of ['currentCal','totalInc','totalExp','curP','curC','curF','targetP','targetC','targetF','currentWeight','transactionsLog','weightLog','foodsDB','activitiesDB','settings']){if(x[k]!==undefined){switch(k){case 'currentCal':currentCal=x[k];break;case 'totalInc':totalInc=x[k];break;case 'totalExp':totalExp=x[k];break;case 'curP':curP=x[k];break;case 'curC':curC=x[k];break;case 'curF':curF=x[k];break;case 'targetP':targetP=x[k];break;case 'targetC':targetC=x[k];break;case 'targetF':targetF=x[k];break;case 'currentWeight':currentWeight=x[k];break;case 'transactionsLog':transactionsLog=x[k];break;case 'weightLog':weightLog=x[k];break;case 'foodsDB':foodsDB=x[k];break;case 'activitiesDB':activitiesDB=x[k];break;case 'settings':settings=x[k];break;}}}}catch(e){console.warn(e);}}
+function loadData(){try{const x=JSON.parse(localStorage.getItem(STORE_KEY)||'null');if(!x)return;for(const k of ['currentCal','totalInc','totalExp','curP','curC','curF','targetP','targetC','targetF','currentWeight','transactionsLog','weightLog','foodsDB','activitiesDB','settings']){if(x[k]!==undefined){switch(k){case 'currentCal':currentCal=x[k];break;case 'totalInc':totalInc=x[k];break;case 'totalExp':totalExp=x[k];break;case 'curP':curP=x[k];break;case 'curC':curC=x[k];break;case 'curF':curF=x[k];break;case 'targetP':targetP=x[k];break;case 'targetC':targetC=x[k];break;case 'targetF':targetF=x[k];break;case 'currentWeight':currentWeight=x[k];break;case 'transactionsLog':transactionsLog=x[k];break;case 'weightLog':weightLog=x[k];break;case 'foodsDB':foodsDB=mergeFoodDatabase(x[k]);break;case 'activitiesDB':activitiesDB=x[k];break;case 'settings':settings=x[k];break;}}}}catch(e){console.warn(e);}}
 function switchMainPage(page){const map={cal:'calories',wt:'weight',txs:'transactions',rep:'reports'};document.querySelectorAll('.page-view').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+map[page]).classList.add('active');document.getElementById('btn-switch-cal').classList.toggle('active',page==='cal');document.getElementById('btn-switch-wt').classList.toggle('active',page==='wt');if(page==='wt')calcWeightFormulas();if(page==='rep')updateReportsUI();}
 function openActionForm(type){
 const modal=document.getElementById('form-modal'),body=document.getElementById('modal-body');modal.classList.add('active');
-if(type==='income'){body.innerHTML=`<div class="card-title"><span>إضافة مدخول (أكل)</span><i class="fa-solid fa-xmark" onclick="closeForm()"></i></div><button class="btn-add-inline" onclick="openActionForm('add_food')">+ إضافة صنف جديد</button><div class="input-box"><input id="srch-food" placeholder="بحث عن الطعام" oninput="filterFoodList()"></div><div class="food-list" id="f-list"></div><div class="input-box"><label>الكمية بالغرام</label><input type="number" id="eat-g" placeholder="100" min="1"></div><div class="grid-2"><button class="btn-action-sm btn-warning-custom" onclick="editSelectedFood()">تعديل الصنف</button><button class="btn-action-sm btn-danger-custom" onclick="deleteSelectedFood()">حذف الصنف</button></div><button class="btn-main" onclick="submitFoodIncome()">حفظ المدخول</button>`;renderFoodList(foodsDB);}
-else if(type==='expense'){body.innerHTML=`<div class="card-title"><span>تسجيل مصروف (رياضة)</span><i class="fa-solid fa-xmark" onclick="closeForm()"></i></div><button class="btn-add-inline red" onclick="openActionForm('add_activity')">+ إضافة نشاط جديد</button><div class="input-box"><input id="srch-act" placeholder="بحث عن نشاط" oninput="filterActivityList()"></div><div class="food-list" id="act-list"></div><div class="grid-2" style="margin:10px 0"><button class="btn-action-sm btn-warning-custom" onclick="editSelectedActivity()">تعديل النشاط المحدد</button><button class="btn-action-sm btn-danger-custom" onclick="deleteSelectedActivity()">حذف النشاط المحدد</button></div><div class="input-box"><label>المدة بالدقائق</label><input type="number" id="exp-mins" min="1" placeholder="30"></div><button class="btn-main" style="background:var(--red-out)" onclick="submitActivityExpense()">حفظ المصروف</button>`;renderActivityList(activitiesDB);}
+if(type==='income'){body.innerHTML=`<div class="card-title"><span>إضافة مدخول (أكل)</span><i class="fa-solid fa-xmark" onclick="closeForm()"></i></div><button class="btn-add-inline" onclick="openActionForm('add_food')">+ إضافة صنف جديد</button><div class="input-box"><input id="srch-food" placeholder="بحث عن الطعام" oninput="filterFoodList()"></div><div class="food-list" id="f-list"></div><div class="input-box"><label>تاريخ الإدخال</label><input type="date" id="income-date" value="${dateInfo().dateStr}"></div><div class="input-box"><label>الكمية بالغرام</label><input type="number" id="eat-g" placeholder="100" min="1"></div><div class="grid-2"><button class="btn-action-sm btn-warning-custom" onclick="editSelectedFood()">تعديل الصنف</button><button class="btn-action-sm btn-danger-custom" onclick="deleteSelectedFood()">حذف الصنف</button></div><button class="btn-main" onclick="submitFoodIncome()">حفظ المدخول</button>`;renderFoodList(foodsDB);}
+else if(type==='expense'){body.innerHTML=`<div class="card-title"><span>تسجيل مصروف (رياضة)</span><i class="fa-solid fa-xmark" onclick="closeForm()"></i></div><button class="btn-add-inline red" onclick="openActionForm('add_activity')">+ إضافة نشاط جديد</button><div class="input-box"><input id="srch-act" placeholder="بحث عن نشاط" oninput="filterActivityList()"></div><div class="food-list" id="act-list"></div><div class="grid-2" style="margin:10px 0"><button class="btn-action-sm btn-warning-custom" onclick="editSelectedActivity()">تعديل النشاط المحدد</button><button class="btn-action-sm btn-danger-custom" onclick="deleteSelectedActivity()">حذف النشاط المحدد</button></div><div class="input-box"><label>تاريخ الإدخال</label><input type="date" id="expense-date" value="${dateInfo().dateStr}"></div><div class="input-box"><label>المدة بالدقائق</label><input type="number" id="exp-mins" min="1" placeholder="30"></div><button class="btn-main" style="background:var(--red-out)" onclick="submitActivityExpense()">حفظ المصروف</button>`;renderActivityList(activitiesDB);}
 else if(type==='add_food'){body.innerHTML=`<div class="card-title">إضافة طعام جديد <i onclick="closeForm()" class="fa-solid fa-xmark"></i></div><div class="input-box"><label>اسم الطعام</label><input id="new-f-name"></div><div class="input-box"><label>السعرات لكل 100 غ</label><input type="number" id="new-f-cal" min="0"></div><div class="grid-3"><div class="input-box"><label>بروتين غ</label><input type="number" id="new-f-p" min="0" step=".1"></div><div class="input-box"><label>كربوهيدرات غ</label><input type="number" id="new-f-c" min="0" step=".1"></div><div class="input-box"><label>دهون غ</label><input type="number" id="new-f-f" min="0" step=".1"></div></div><button class="btn-main" onclick="submitNewFoodItem()">حفظ الصنف</button>`;}
 else if(type==='add_activity'){body.innerHTML=`<div class="card-title">إضافة نشاط <i onclick="closeForm()" class="fa-solid fa-xmark"></i></div><div class="input-box"><label>اسم النشاط</label><input id="new-act-name"></div><div class="input-box"><label>السعرات المحروقة بالدقيقة</label><input type="number" id="new-act-rate" min="0" step=".1"></div><button class="btn-main" onclick="submitNewActivityItem()">حفظ النشاط</button>`;}
 else if(type==='balance'){body.innerHTML=`<div class="card-title">تعديل الرصيد الحالي <i onclick="closeForm()" class="fa-solid fa-xmark"></i></div><p style="font-size:12px;color:#64748b;margin-bottom:10px">أدخل الرصيد الذي تريد ظهوره الآن. سيُعاد احتساب الرصيد الأساسي تلقائياً مع الحفاظ على معادلة الرصيد.</p><div class="input-box"><label>الرصيد الحالي المطلوب</label><input type="number" id="man-bal" value="${currentCal}"></div><button class="btn-main" onclick="submitManualBalance()">حفظ الرصيد</button>`;}
@@ -496,9 +1006,9 @@ function editSelectedActivity(){const x=activitiesDB[selActIdx];if(!x)return ale
 function deleteSelectedActivity(){const x=activitiesDB[selActIdx];if(!x)return alert('اختر نشاطاً أولاً');if(!confirm('هل تريد حذف النشاط «'+x.name+'»؟'))return;activitiesDB.splice(selActIdx,1);selActIdx=Math.min(selActIdx,Math.max(0,activitiesDB.length-1));saveData();const search=document.getElementById('srch-act');const q=search?search.value.trim().toLowerCase():'';renderActivityList(q?activitiesDB.filter(a=>a.name.toLowerCase().includes(q)):activitiesDB);alert('تم حذف النشاط.');}
 function editSelectedFood(){const x=foodsDB[selFoodIdx];if(!x)return alert('اختر صنفاً أولاً');const name=prompt('اسم الطعام',x.name);if(name===null)return;const cal=prompt('السعرات لكل 100غ',x.cal),p=prompt('البروتين لكل 100غ',x.p),c=prompt('الكربوهيدرات لكل 100غ',x.c),f=prompt('الدهون لكل 100غ',x.f);if(cal===null||p===null||c===null||f===null)return;const vals=[cal,p,c,f].map(Number);if(!name.trim()||vals.some(v=>!Number.isFinite(v)||v<0)||vals[1]+vals[2]+vals[3]>100.5)return alert('القيم المدخلة غير صحيحة');Object.assign(x,{name:name.trim(),cal:vals[0],p:vals[1],c:vals[2],f:vals[3]});saveData();renderFoodList(foodsDB);}
 function deleteSelectedFood(){if(!foodsDB[selFoodIdx])return alert('اختر صنفاً أولاً');if(confirm('حذف '+foodsDB[selFoodIdx].name+'؟')){foodsDB.splice(selFoodIdx,1);selFoodIdx=0;saveData();renderFoodList(foodsDB);}}
-function addTx(type,name,val,macros={}){const dt=dateInfo();transactionsLog.unshift({id:Date.now(),type,name,val,...macros,date:dt.dateStr,time:dt.timeStr,year:dt.year,month:dt.month});}
-function submitFoodIncome(){const g=num('eat-g'),item=foodsDB[selFoodIdx];if(g<=0||!item)return alert('اختر الطعام وأدخل الكمية بالغرام');const factor=g/100,cal=factor*item.cal,p=factor*item.p,c=factor*item.c,f=factor*item.f;currentCal+=cal;totalInc+=cal;curP+=p;curC+=c;curF+=f;addTx('in',`${item.name} (${g}غ)`,cal,{p,c,f});saveData();updateCalUI();renderTransactions();closeForm();}
-function submitActivityExpense(){const mins=num('exp-mins'),item=activitiesDB[selActIdx];if(mins<=0||!item)return alert('اختر النشاط وأدخل المدة');const burned=mins*item.rate;currentCal-=burned;totalExp+=burned;addTx('out',`${item.name} (${mins} دقيقة)`,burned);saveData();updateCalUI();renderTransactions();closeForm();}
+function addTx(type,name,val,macros={},selectedDate=''){const dt=dateInfo(),d=selectedDate||dt.dateStr;transactionsLog.unshift({id:Date.now(),type,name,val,...macros,date:d,time:dt.timeStr,year:d.slice(0,4),month:d.slice(5,7)});}
+function submitFoodIncome(){const g=num('eat-g'),item=foodsDB[selFoodIdx];if(g<=0||!item)return alert('اختر الطعام وأدخل الكمية بالغرام');const factor=g/100,cal=factor*item.cal,p=factor*item.p,c=factor*item.c,f=factor*item.f;currentCal+=cal;totalInc+=cal;curP+=p;curC+=c;curF+=f;addTx('in',`${item.name} (${g}غ)`,cal,{p,c,f},document.getElementById('income-date')?.value);saveData();updateCalUI();renderTransactions();closeForm();}
+function submitActivityExpense(){const mins=num('exp-mins'),item=activitiesDB[selActIdx];if(mins<=0||!item)return alert('اختر النشاط وأدخل المدة');const burned=mins*item.rate;currentCal-=burned;totalExp+=burned;addTx('out',`${item.name} (${mins} دقيقة)`,burned,{},document.getElementById('expense-date')?.value);saveData();updateCalUI();renderTransactions();closeForm();}
 function submitManualBalance(){const input=document.getElementById('man-bal');const v=Number(input.value);if(input.value.trim()===''||!Number.isFinite(v))return alert('أدخل رقماً صحيحاً');/* الرصيد الحالي مشتق من المعادلة؛ نعدّل الرصيد الأساسي ليصبح الناتج هو الرقم المطلوب */extraState.baseBalance=v-(Number(totalInc)||0)+(Number(totalExp)||0)+(Number(extraState.totalSurplus)||0);recalcBalance();saveExtra();saveData();updateCalUI();closeForm();alert('تم تحديث الرصيد الحالي والرصيد الأساسي وفق المعادلة.');}
 function editTransaction(id){const tx=transactionsLog.find(x=>x.id===id);if(!tx)return;const v=Number(prompt('القيمة الجديدة بالسعرات',tx.val));if(!Number.isFinite(v)||v<0)return;const delta=v-tx.val;if(tx.type==='in'){currentCal+=delta;totalInc+=delta;}else{currentCal-=delta;totalExp+=delta;}tx.val=v;saveData();updateCalUI();renderTransactions();}
 function deleteTransaction(id){const i=transactionsLog.findIndex(x=>x.id===id);if(i<0)return;const tx=transactionsLog[i];if(!confirm('حذف العملية؟'))return;if(tx.type==='in'){currentCal-=tx.val;totalInc-=tx.val;curP-=tx.p||0;curC-=tx.c||0;curF-=tx.f||0;}else{currentCal+=tx.val;totalExp-=tx.val;}transactionsLog.splice(i,1);saveData();updateCalUI();renderTransactions();}
@@ -604,6 +1114,7 @@ function openSurplusForm(){
  document.getElementById('form-modal').classList.add('active');
  body.innerHTML=`<div class="card-title"><span>تسجيل فائض</span><i class="fa-solid fa-xmark" onclick="closeForm()"></i></div>
  <p style="font-size:12px;color:#64748b;margin-bottom:10px">سيُخصم هذا المبلغ من الرصيد وفق معادلتك.</p>
+ <div class="input-box"><label>تاريخ الإدخال</label><input type="date" id="surplus-date" value="${dateInfo().dateStr}"></div>
  <div class="input-box"><label>قيمة الفائض بالسعرات</label><input type="number" id="surplus-amount" min="0" placeholder="مثلاً 300"></div>
  <div class="input-box"><label>ملاحظة (اختياري)</label><input id="surplus-note" placeholder="وصف الفائض"></div>
  <button class="btn-main" style="background:var(--orange-btn)" onclick="submitSurplus()">حفظ الفائض</button>`;
@@ -612,7 +1123,7 @@ function submitSurplus(){
  const v=Number(document.getElementById('surplus-amount').value);if(!Number.isFinite(v)||v<=0)return alert('أدخل قيمة صحيحة');
  const note=document.getElementById('surplus-note').value.trim()||'فائض';
  extraState.totalSurplus+=v;
- const dt=dateInfo();transactionsLog.unshift({id:Date.now(),type:'surplus',name:note,val:v,date:dt.dateStr,time:dt.timeStr,year:dt.year,month:dt.month});
+ const dt=dateInfo(),d=document.getElementById('surplus-date')?.value||dt.dateStr;transactionsLog.unshift({id:Date.now(),type:'surplus',name:note,val:v,date:d,time:dt.timeStr,year:d.slice(0,4),month:d.slice(5,7)});
  recalcBalance();saveExtra();saveData();updateCalUI();renderTransactions();closeForm();
 }
 const oldOpenActionForm=openActionForm;
@@ -693,9 +1204,81 @@ function drawPeriodChart(filter,key){
  [['مدخول','#10b981'],['مصروف','#ef4444'],['فائض','#f59e0b']].forEach(([t,col],i)=>{ctx.fillStyle=col;ctx.fillRect(W-230+i*78,4,10,10);ctx.fillStyle='#475569';ctx.fillText(t,W-215+i*78,14);});
 }
 window.addEventListener('load',async()=>{
- loadExtra();recalcBalance();updateCalUI();updateWaterUI();updateExtraMetrics();
+ loadExtra();foodsDB=mergeFoodDatabase(foodsDB);recalcBalance();updateCalUI();updateWaterUI();updateExtraMetrics();
  if(extraState.passwordHash){const ok=await checkLocalPassword();if(!ok){document.body.innerHTML='<div style="font-family:Arial;text-align:center;padding:40px;direction:rtl">تم إيقاف العرض. أعد فتح التطبيق وأدخل كلمة المرور.</div>';}}
 });
+</script>
+
+
+<script>
+/* Daily 1500 kcal allowance and macros reset by date; the main balance stays cumulative. */
+function getTodayTransactions(){const today=dateInfo().dateStr;return (transactionsLog||[]).filter(t=>(t.date||'')===today);}
+let dailyInc=0,dailyExp=0;
+function syncDailyStats(){
+ const allTx=transactionsLog||[], todayTx=getTodayTransactions();
+ /* Lifetime totals drive the main balance and lifetime income/expense counters. */
+ totalInc=allTx.filter(t=>t.type==='in').reduce((a,t)=>a+Number(t.val||0),0);
+ totalExp=allTx.filter(t=>t.type==='out').reduce((a,t)=>a+Number(t.val||0),0);
+ /* Daily food macros and daily 1500 kcal budget are isolated from lifetime balance. */
+ dailyInc=todayTx.filter(t=>t.type==='in').reduce((a,t)=>a+Number(t.val||0),0);
+ dailyExp=todayTx.filter(t=>t.type==='out').reduce((a,t)=>a+Number(t.val||0),0);
+ curP=todayTx.filter(t=>t.type==='in').reduce((a,t)=>a+Number(t.p||0),0);
+ curC=todayTx.filter(t=>t.type==='in').reduce((a,t)=>a+Number(t.c||0),0);
+ curF=todayTx.filter(t=>t.type==='in').reduce((a,t)=>a+Number(t.f||0),0);
+}
+/* Restore the original cumulative calorie balance, starting from 77,500. */
+recalcBalance=function(){
+ if(!Number.isFinite(Number(extraState.baseBalance)) || Number(extraState.baseBalance)<10000) extraState.baseBalance=77500;
+ currentCal=(Number(extraState.baseBalance)||77500)+totalInc-totalExp-(Number(extraState.totalSurplus)||0);
+};
+const baseUpdateCalUI=updateCalUI;
+updateCalUI=function(){syncDailyStats();recalcBalance();baseUpdateCalUI();
+ const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+ set('main-cal-val',Math.round(currentCal).toLocaleString('en-US'));
+ set('total-inc',Math.round(totalInc).toLocaleString('en-US'));
+ set('total-exp',Math.round(totalExp).toLocaleString('en-US'));
+ set('m-p',curP.toFixed(1)+' غ');set('m-c',curC.toFixed(1)+' غ');set('m-f',curF.toFixed(1)+' غ');
+ set('m-p-rem',(targetP-curP).toFixed(1)+' غ');set('m-c-rem',(targetC-curC).toFixed(1)+' غ');set('m-f-rem',(targetF-curF).toFixed(1)+' غ');
+ set('surplus-val',Math.max(0,1500+dailyExp-dailyInc).toFixed(0)+' سعرة');
+ set('tbl-p-target',targetP.toFixed(1)+' غ');set('tbl-p-eaten',curP.toFixed(1)+' غ');set('tbl-p-left',(targetP-curP).toFixed(1)+' غ');
+ set('tbl-c-target',targetC.toFixed(1)+' غ');set('tbl-c-eaten',curC.toFixed(1)+' غ');set('tbl-c-left',(targetC-curC).toFixed(1)+' غ');
+ set('tbl-f-target',targetF.toFixed(1)+' غ');set('tbl-f-eaten',curF.toFixed(1)+' غ');set('tbl-f-left',(targetF-curF).toFixed(1)+' غ');
+};
+let dailyDateMarker=dateInfo().dateStr;
+setInterval(()=>{const d=dateInfo().dateStr;if(d!==dailyDateMarker){dailyDateMarker=d;loadExtra();updateCalUI();saveData();}},30000);
+const priorSubmitFoodIncome=submitFoodIncome;
+submitFoodIncome=function(){priorSubmitFoodIncome();syncDailyStats();recalcBalance();saveData();updateCalUI();};
+const priorSubmitActivityExpense=submitActivityExpense;
+submitActivityExpense=function(){priorSubmitActivityExpense();syncDailyStats();recalcBalance();saveData();updateCalUI();};
+const priorDeleteTransaction=deleteTransaction;
+deleteTransaction=function(id){priorDeleteTransaction(id);syncDailyStats();recalcBalance();saveData();updateCalUI();};
+const priorEditTransaction=editTransaction;
+editTransaction=function(id){priorEditTransaction(id);syncDailyStats();recalcBalance();saveData();updateCalUI();};
+window.addEventListener('load',()=>{syncDailyStats();recalcBalance();updateCalUI();});
+
+</script>
+
+
+<script>
+/* Daily, monthly and lifetime totals for income, exercise expense and manually logged surplus. */
+function updatePeriodTotals(){
+ const tx=Array.isArray(transactionsLog)?transactionsLog:[];
+ const d=dateInfo(), today=d.dateStr, month=today.slice(0,7);
+ const sum=(arr,type)=>arr.filter(x=>x.type===type).reduce((a,x)=>a+Number(x.val||0),0);
+ const day=tx.filter(x=>(x.date||'')===today);
+ const mon=tx.filter(x=>(x.date||'').startsWith(month));
+ const put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=Math.round(v).toLocaleString('en-US')+' سعرة';};
+ put('day-inc',sum(day,'in'));put('day-exp',sum(day,'out'));put('day-sur',sum(day,'surplus'));
+ put('month-inc',sum(mon,'in'));put('month-exp',sum(mon,'out'));put('month-sur',sum(mon,'surplus'));
+ put('all-inc',sum(tx,'in'));put('all-exp',sum(tx,'out'));put('all-sur',sum(tx,'surplus'));
+ const dl=document.getElementById('period-day-label'),ml=document.getElementById('period-month-label');
+ if(dl)dl.textContent=today;if(ml)ml.textContent=month;
+}
+const updateCalUIWithPeriods=updateCalUI;
+updateCalUI=function(){updateCalUIWithPeriods();updatePeriodTotals();};
+const renderTxWithPeriods=renderTransactions;
+renderTransactions=function(){renderTxWithPeriods();updatePeriodTotals();};
+window.addEventListener('load',updatePeriodTotals);
 </script>
 
 </body>
