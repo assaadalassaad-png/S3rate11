@@ -1281,44 +1281,64 @@ renderTransactions=function(){renderTxWithPeriods();updatePeriodTotals();};
 window.addEventListener('load',updatePeriodTotals);
 </script>
 
-<script>
-/* Final correction: reliably record food macros and calculate the daily allowance from food intake only. */
-function submitFoodIncome(){
- const grams=Number(document.getElementById('eat-g')?.value||0);
- const item=foodsDB[selFoodIdx];
- if(!(grams>0)||!item) return alert('اختر الطعام وأدخل الكمية بالغرام');
- const per100=(v)=>{const n=Number(v);return Number.isFinite(n)?n:0;};
- const factor=grams/100;
- const calories=factor*per100(item.cal);
- const protein=factor*per100(item.p);
- const carbs=factor*per100(item.c);
- const fat=factor*per100(item.f);
- const chosenDate=document.getElementById('income-date')?.value||dateInfo().dateStr;
- addTx('in',`${item.name} (${grams}غ)`,calories,{p:protein,c:carbs,f:fat},chosenDate);
- syncDailyStats();recalcBalance();saveData();updateCalUI();renderTransactions();closeForm();
+
+
+\n<script>
+/* Targeted fix: food macros are recorded from the selected food and quantity;
+   today's remaining allowance decreases by food intake only. Other app logic is untouched. */
+function _foodMacro(item, shortKey, longKey){
+  const raw = item?.[shortKey] ?? item?.[longKey] ?? 0;
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : 0;
 }
-/* Support older saved records that may use alternate macro property names. */
-const _syncDailyStatsFixed=syncDailyStats;
-syncDailyStats=function(){
- _syncDailyStatsFixed();
- const todays=getTodayTransactions().filter(t=>t.type==='in');
- curP=todays.reduce((a,t)=>a+Number(t.p??t.protein??0),0);
- curC=todays.reduce((a,t)=>a+Number(t.c??t.carbs??t.carbohydrates??0),0);
- curF=todays.reduce((a,t)=>a+Number(t.f??t.fat??0),0);
-};
-const _updateCalUIFixed=updateCalUI;
-updateCalUI=function(){
- _updateCalUIFixed();
- const eaten=getTodayTransactions().filter(t=>t.type==='in').reduce((a,t)=>a+Number(t.val||0),0);
- const remaining=1500-eaten;
- const el=document.getElementById('surplus-val');
- if(el)el.innerHTML=remaining.toFixed(0)+' <span style="font-size:14px">سعرة</span>';
- const put=(id,value)=>{const node=document.getElementById(id);if(node)node.textContent=value.toFixed(1)+' غ';};
- put('m-p',curP);put('m-c',curC);put('m-f',curF);
- put('m-p-rem',Number(targetP)-curP);put('m-c-rem',Number(targetC)-curC);put('m-f-rem',Number(targetF)-curF);
- put('tbl-p-target',Number(targetP));put('tbl-p-eaten',curP);put('tbl-p-left',Number(targetP)-curP);
- put('tbl-c-target',Number(targetC));put('tbl-c-eaten',curC);put('tbl-c-left',Number(targetC)-curC);
- put('tbl-f-target',Number(targetF));put('tbl-f-eaten',curF);put('tbl-f-left',Number(targetF)-curF);
+function submitFoodIncome(){
+  const grams = Number(document.getElementById('eat-g')?.value || 0);
+  const item = foodsDB?.[selFoodIdx];
+  if (!(grams > 0) || !item) return alert('اختر الطعام وأدخل الكمية بالغرام');
+  const factor = grams / 100;
+  const calories = factor * _foodMacro(item, 'cal', 'calories');
+  const protein  = factor * _foodMacro(item, 'p', 'protein');
+  const carbs    = factor * _foodMacro(item, 'c', 'carbs');
+  const fat      = factor * _foodMacro(item, 'f', 'fat');
+  const chosenDate = document.getElementById('income-date')?.value || dateInfo().dateStr;
+  addTx('in', `${item.name} (${grams}غ)`, calories,
+        {p:protein, c:carbs, f:fat}, chosenDate);
+  syncDailyStats();
+  recalcBalance();
+  saveData();
+  updateCalUI();
+  renderTransactions();
+  closeForm();
+}
+function syncDailyStats(){
+  const all = Array.isArray(transactionsLog) ? transactionsLog : [];
+  const today = dateInfo().dateStr;
+  const todays = all.filter(t => (t.date || '') === today);
+  totalInc = all.filter(t => t.type === 'in').reduce((a,t)=>a+Number(t.val||0),0);
+  totalExp = all.filter(t => t.type === 'out').reduce((a,t)=>a+Number(t.val||0),0);
+  dailyInc = todays.filter(t => t.type === 'in').reduce((a,t)=>a+Number(t.val||0),0);
+  dailyExp = todays.filter(t => t.type === 'out').reduce((a,t)=>a+Number(t.val||0),0);
+  const foods = todays.filter(t => t.type === 'in');
+  curP = foods.reduce((a,t)=>a+Number(t.p ?? t.protein ?? 0),0);
+  curC = foods.reduce((a,t)=>a+Number(t.c ?? t.carbs ?? t.carbohydrates ?? 0),0);
+  curF = foods.reduce((a,t)=>a+Number(t.f ?? t.fat ?? 0),0);
+}
+const _updateCalUI_targetedFix = updateCalUI;
+updateCalUI = function(){
+  syncDailyStats();
+  recalcBalance();
+  _updateCalUI_targetedFix();
+  const put = (id, value) => { const el=document.getElementById(id); if(el) el.textContent=value; };
+  put('m-p',curP.toFixed(1)+' غ'); put('m-c',curC.toFixed(1)+' غ'); put('m-f',curF.toFixed(1)+' غ');
+  put('m-p-rem',(Number(targetP)-curP).toFixed(1)+' غ');
+  put('m-c-rem',(Number(targetC)-curC).toFixed(1)+' غ');
+  put('m-f-rem',(Number(targetF)-curF).toFixed(1)+' غ');
+  put('tbl-p-target',Number(targetP).toFixed(1)+' غ'); put('tbl-p-eaten',curP.toFixed(1)+' غ'); put('tbl-p-left',(Number(targetP)-curP).toFixed(1)+' غ');
+  put('tbl-c-target',Number(targetC).toFixed(1)+' غ'); put('tbl-c-eaten',curC.toFixed(1)+' غ'); put('tbl-c-left',(Number(targetC)-curC).toFixed(1)+' غ');
+  put('tbl-f-target',Number(targetF).toFixed(1)+' غ'); put('tbl-f-eaten',curF.toFixed(1)+' غ'); put('tbl-f-left',(Number(targetF)-curF).toFixed(1)+' غ');
+  const remaining = 1500 - dailyInc;
+  const surplus = document.getElementById('surplus-val');
+  if(surplus) surplus.innerHTML = remaining.toFixed(0)+' <span style="font-size:14px">سعرة</span>';
 };
 window.addEventListener('load',()=>{syncDailyStats();updateCalUI();});
 </script>
